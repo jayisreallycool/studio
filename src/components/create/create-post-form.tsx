@@ -1,10 +1,11 @@
 'use client';
-import { useEffect, useActionState } from 'react';
+import { useEffect, useActionState, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import Image from 'next/image';
 
-import { createPostAction, type FormState } from '@/lib/actions';
+import { createPostAction, generateAltTextAction, type FormState } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -14,7 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { CheckCircle, Info, Link as LinkIcon, BotMessageSquare } from 'lucide-react';
+import { CheckCircle, Info, Link as LinkIcon, BotMessageSquare, Sparkles, LoaderCircle } from 'lucide-react';
 
 
 const formSchema = z.object({
@@ -22,6 +23,7 @@ const formSchema = z.object({
   content: z.string().min(50, "Content must be at least 50 characters long."),
   tags: z.string().optional(),
   affiliateLink: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
+  altText: z.string().optional(),
 });
 
 const initialState: FormState = {
@@ -31,6 +33,8 @@ const initialState: FormState = {
 export function CreatePostForm() {
   const [state, formAction] = useActionState(createPostAction, initialState);
   const { toast } = useToast();
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -38,7 +42,8 @@ export function CreatePostForm() {
       title: '',
       content: '',
       tags: '',
-      affiliateLink: ''
+      affiliateLink: '',
+      altText: '',
     },
   });
 
@@ -61,6 +66,7 @@ export function CreatePostForm() {
         variant: "default",
       });
       form.reset();
+      setImagePreview(null);
     } else if (state.message && state.issues) {
       toast({
         title: "Error",
@@ -69,6 +75,52 @@ export function CreatePostForm() {
       });
     }
   }, [state, toast, form]);
+
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
+  };
+
+  const handleGenerateAltText = async () => {
+    if (!imagePreview) {
+      toast({
+        title: "No Image Selected",
+        description: "Please select an image first to generate alt text.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsGenerating(true);
+    try {
+      const result = await generateAltTextAction(imagePreview);
+      if (result.altText) {
+        form.setValue('altText', result.altText);
+        toast({
+          title: "Alt Text Generated!",
+          description: "The AI-generated alt text has been added.",
+        });
+      } else {
+        throw new Error(result.error || 'Unknown error');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Generation Failed",
+        description: error.message || "Could not generate alt text.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
 
   return (
@@ -124,6 +176,51 @@ export function CreatePostForm() {
             />
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Post Image</CardTitle>
+            <CardDescription>Add a featured image for your post to improve engagement.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormItem>
+              <FormLabel>Image Upload</FormLabel>
+              <FormControl>
+                <Input type="file" accept="image/*" onChange={handleImageChange} className="cursor-pointer" />
+              </FormControl>
+            </FormItem>
+
+            {imagePreview && (
+              <div className="relative aspect-video w-full overflow-hidden rounded-md border">
+                <Image src={imagePreview} alt="Post preview" fill className="object-cover" />
+              </div>
+            )}
+
+            <FormField
+              control={form.control}
+              name="altText"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Alt Text</FormLabel>
+                  <div className="flex items-center gap-2">
+                    <FormControl>
+                      <Input placeholder="Descriptive alt text for the image..." {...field} />
+                    </FormControl>
+                    <Button type="button" onClick={handleGenerateAltText} disabled={!imagePreview || isGenerating} size="icon">
+                      <span className="sr-only">Generate Alt Text</span>
+                      {isGenerating ? <LoaderCircle className="animate-spin" /> : <Sparkles />}
+                    </Button>
+                  </div>
+                  <FormDescription>
+                    Good alt text is important for SEO and accessibility.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
               <CardTitle className="flex items-center gap-2"><LinkIcon className="h-5 w-5"/> Affiliate Link</CardTitle>

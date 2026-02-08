@@ -14,6 +14,7 @@ const RankNewPostInputSchema = z.object({
   title: z.string().describe('The title of the post.'),
   content: z.string().describe('The main content of the post.'),
   tags: z.array(z.string()).describe('Keywords or tags associated with the post.'),
+  altText: z.string().optional().describe('Alt text for the post image, if any.'),
 });
 export type RankNewPostInput = z.infer<typeof RankNewPostInputSchema>;
 
@@ -42,13 +43,14 @@ const rankNewPostPrompt = ai.definePrompt({
   name: 'rankNewPostPrompt',
   input: {schema: RankNewPostInputSchema},
   output: {schema: RankNewPostOutputSchema},
-  prompt: `You are an AI assistant that analyzes user-submitted posts on a social content platform to determine their relevance and assign a ranking score.
+  prompt: `You are an AI assistant that analyzes user-submitted posts on a social content platform to determine their relevance and assign a ranking score. Good SEO is important, so consider the alt text for the image if it is provided.
 
 Analyze the following post and provide a relevance score between 0 and 1, along with reasoning for the score. Additionally, recommend whether the post should receive a ranking boost based on its relevance.
 
 Post Title: {{{title}}}
 Post Content: {{{content}}}
 Post Tags: {{#each tags}}{{{this}}} {{/each}}
+{{#if altText}}Image Alt Text: {{{altText}}}{{/if}}
 
 Provide your output as a JSON object with the keys: relevanceScore, reasoning, boostRecommendation.
 `,

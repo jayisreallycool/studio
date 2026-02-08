@@ -1,12 +1,15 @@
 'use server';
 
 import { rankNewPost, RankNewPostInput, RankNewPostOutput } from '@/ai/flows/rank-new-posts-with-ai';
+import { generateAltText as generateAltTextFlow } from '@/ai/flows/generate-alt-text-flow';
 import { z } from 'zod';
 
 const formSchema = z.object({
   title: z.string().min(10, "Title must be at least 10 characters."),
   content: z.string().min(50, "Content must be at least 50 characters."),
   tags: z.string(),
+  affiliateLink: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
+  altText: z.string().optional(),
 });
 
 export type FormState = {
@@ -22,6 +25,8 @@ export async function createPostAction(prevState: FormState, formData: FormData)
     title: formData.get('title'),
     content: formData.get('content'),
     tags: formData.get('tags'),
+    affiliateLink: formData.get('affiliateLink'),
+    altText: formData.get('altText'),
   });
 
   if (!validatedFields.success) {
@@ -37,7 +42,7 @@ export async function createPostAction(prevState: FormState, formData: FormData)
     };
   }
 
-  const { title, content, tags } = validatedFields.data;
+  const { title, content, tags, altText } = validatedFields.data;
   const tagsArray = tags.split(',').map(tag => tag.trim()).filter(Boolean);
 
   try {
@@ -45,6 +50,7 @@ export async function createPostAction(prevState: FormState, formData: FormData)
       title,
       content,
       tags: tagsArray,
+      altText,
     };
 
     const aiResult = await rankNewPost(aiInput);
@@ -60,5 +66,21 @@ export async function createPostAction(prevState: FormState, formData: FormData)
     return {
       message: 'An error occurred while analyzing the post with AI. Please try again.'
     }
+  }
+}
+
+
+export async function generateAltTextAction(
+  photoDataUri: string
+): Promise<{ altText?: string; error?: string }> {
+  if (!photoDataUri) {
+    return { error: 'No image provided to generate alt text from.' };
+  }
+  try {
+    const result = await generateAltTextFlow({ photoDataUri });
+    return { altText: result.altText };
+  } catch (e) {
+    console.error(e);
+    return { error: 'Failed to generate alt text.' };
   }
 }
