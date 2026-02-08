@@ -4,7 +4,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Bell } from "lucide-react";
+import { Bell, PanelLeft } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function AppHeader() {
@@ -17,7 +17,9 @@ export function AppHeader() {
   if (!isClient) {
     return (
       <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur-sm px-4 md:px-6">
-        <Skeleton className="h-7 w-7 md:hidden" />
+        <Button variant="ghost" size="icon" className="h-7 w-7 md:hidden animate-pulse bg-muted" disabled>
+            <PanelLeft />
+        </Button>
         <div className="flex-1" />
         <Skeleton className="h-10 w-10 rounded-full" />
         <Skeleton className="h-9 w-9 rounded-full" />
