@@ -9,6 +9,8 @@ import { Timestamp, doc, updateDoc, increment } from 'firebase/firestore';
 import { formatDistanceToNow } from 'date-fns';
 import { useUser, useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 interface PostCardProps {
   post: Post;
@@ -47,15 +49,17 @@ export function PostCard({ post }: PostCardProps) {
 
     // For this MVP, we're not tracking individual votes, so a user can vote multiple times.
     // A production app would add a subcollection to track which users have voted.
-    updateDoc(postRef, {
-      [fieldToUpdate]: increment(1),
-    }).catch((err) => {
-      console.error('Vote failed', err);
-      toast({
-        title: 'Vote failed',
-        description: 'Could not register your vote.',
-        variant: 'destructive',
+    const voteUpdate = { [fieldToUpdate]: increment(1) };
+    updateDoc(postRef, voteUpdate).catch(async (serverError) => {
+      const permissionError = new FirestorePermissionError({
+        path: postRef.path,
+        operation: 'update',
+        requestResourceData: {
+          field: fieldToUpdate,
+          increment: 1,
+        }
       });
+      errorEmitter.emit('permission-error', permissionError);
     });
   };
 
