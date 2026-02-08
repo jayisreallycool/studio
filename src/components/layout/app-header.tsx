@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Bell } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function AppHeader() {
   const [isClient, setIsClient] = useState(false)
@@ -12,6 +13,17 @@ export function AppHeader() {
   useEffect(() => {
     setIsClient(true)
   }, [])
+
+  if (!isClient) {
+    return (
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur-sm px-4 md:px-6">
+        <Skeleton className="h-7 w-7 md:hidden" />
+        <div className="flex-1" />
+        <Skeleton className="h-10 w-10 rounded-full" />
+        <Skeleton className="h-9 w-9 rounded-full" />
+      </header>
+    );
+  }
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur-sm px-4 md:px-6">
@@ -23,7 +35,6 @@ export function AppHeader() {
         <Bell className="h-5 w-5" />
         <span className="sr-only">Notifications</span>
       </Button>
-      {isClient && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -47,7 +58,6 @@ export function AppHeader() {
             <DropdownMenuItem>Log out</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )}
     </header>
   );
 }
