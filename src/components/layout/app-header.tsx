@@ -6,8 +6,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Bell, PanelLeft } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useUser } from "@/firebase";
 
 export function AppHeader() {
+  const { user } = useUser();
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
@@ -17,12 +19,16 @@ export function AppHeader() {
   if (!isClient) {
     return (
       <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur-sm px-4 md:px-6">
-        <Button variant="ghost" size="icon" className="h-7 w-7 md:hidden animate-pulse bg-muted" disabled>
+        <Button variant="ghost" size="icon" className="h-7 w-7 md:hidden" disabled>
             <PanelLeft />
         </Button>
         <div className="flex-1" />
-        <Skeleton className="h-10 w-10 rounded-full" />
-        <Skeleton className="h-9 w-9 rounded-full" />
+        <Button variant="ghost" size="icon" className="rounded-full" disabled>
+            <Bell className="h-5 w-5" />
+        </Button>
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full" disabled>
+            <Skeleton className="h-9 w-9 rounded-full" />
+        </Button>
       </header>
     );
   }
@@ -41,16 +47,16 @@ export function AppHeader() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-9 w-9">
-                <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtZW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzA1MjU4ODd8MA&ixlib=rb-4.1.0&q=80&w=1080" alt="Affiliate User" data-ai-hint="man portrait"/>
-                <AvatarFallback>AU</AvatarFallback>
+                <AvatarImage src={user?.photoURL ?? "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtZW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzA1MjU4ODd8MA&ixlib=rb-4.1.0&q=80&w=1080"} alt={user?.displayName ?? "Affiliate User"} data-ai-hint="man portrait"/>
+                <AvatarFallback>{user?.displayName?.charAt(0) ?? 'A'}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">Affiliate User</p>
-                <p className="text-xs leading-none text-muted-foreground">user@affluence.com</p>
+                <p className="text-sm font-medium leading-none">{user?.displayName ?? 'Affiliate User'}</p>
+                <p className="text-xs leading-none text-muted-foreground">{user?.email ?? 'user@affluence.com'}</p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
