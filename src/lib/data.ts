@@ -54,22 +54,10 @@ export const posts: Post[] = [
 ];
 
 export const dashboardStats = {
-  totalEarnings: {
-    value: 0,
-    change: 0,
-  },
-  totalViews: {
-    value: 0,
-    change: 0,
-  },
-  totalClicks: {
-    value: 0,
-    change: 0,
-  },
-  avgConversionRate: {
-    value: 0,
-    change: 0,
-  },
+  totalEarnings: { value: 0, change: 0 },
+  totalViews: { value: 0, change: 0 },
+  totalClicks: { value: 0, change: 0 },
+  avgConversionRate: { value: 0, change: 0 },
 };
 
 export const earningsData: { month: string; earnings: number }[] = [];
@@ -83,4 +71,37 @@ export const recentPostsData: {
     earnings: number;
   }[] = [];
 
-export const challenges: Challenge[] = [];
+export const challenges: Challenge[] = [
+  {
+    id: 'challenge-1',
+    title: 'First Post',
+    description: 'Create your first post and share your knowledge with the community.',
+    reward: '100 Points',
+    progress: 0,
+    goal: 100,
+  },
+  {
+    id: 'challenge-2',
+    title: 'SEO Starter',
+    description: 'Write a post optimized for a specific keyword and include at least 3 relevant tags.',
+    reward: '150 Points',
+    progress: 50,
+    goal: 100,
+  },
+  {
+    id: 'challenge-3',
+    title: 'Engagement Expert',
+    description: 'Get 10 upvotes on one of your posts.',
+    reward: '200 Points',
+    progress: 20,
+    goal: 100,
+  },
+    {
+    id: 'challenge-4',
+    title: 'Affiliate Apprentice',
+    description: 'Include an affiliate link in one of your posts and get your first click.',
+    reward: '250 Points',
+    progress: 0,
+    goal: 100,
+  },
+];

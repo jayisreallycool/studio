@@ -43,7 +43,8 @@
           "displayName": { "type": "string" },
           "email": { "type": "string", "format": "email" },
           "photoURL": { "type": "string", "format": "uri" }
-        }
+        },
+        "required": ["displayName", "email", "photoURL"]
     },
     "DashboardStats": {
         "title": "Dashboard Statistics",
@@ -88,7 +89,7 @@
     }
   },
   "auth": {
-    "providers": ["anonymous"]
+    "providers": ["google.com"]
   },
   "firestore": {
     "/posts": {
@@ -103,15 +104,15 @@
         "schema": { "$ref": "#/entities/UserProfile" },
         "description": "User profile document."
     },
-    "/dashboard/default/stats/main": {
+    "/users/{userId}/dashboard/stats/main": {
         "schema": { "$ref": "#/entities/DashboardStats" },
         "description": "Dashboard statistics for a user."
     },
-    "/dashboard/default/earnings/chart": {
+    "/users/{userId}/dashboard/earnings/chart": {
         "schema": { "$ref": "#/entities/EarningsData" },
         "description": "Earnings chart data for a user."
     },
-    "/dashboard/default/posts/recent": {
+    "/users/{userId}/dashboard/posts/recent": {
         "schema": {
             "type": "object",
             "properties": {

@@ -8,15 +8,17 @@ service cloud.firestore {
     }
     match /challenges/{challengeId} {
       allow read: if true;
-      allow write: if false;
+      allow write: if false; // Challenges are read-only for now
     }
     match /users/{userId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == userId;
-    }
-    match /dashboard/default/{document=**} {
-      allow read: if request.auth != null;
-      allow write: if false;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow user to only access their own dashboard data
+      match /dashboard/{document=**} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        allow write: if false; // Dashboard data is read-only for now
+      }
     }
   }
 }
