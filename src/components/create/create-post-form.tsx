@@ -1,6 +1,5 @@
 'use client';
-import { useEffect } from 'react';
-import { useFormState } from 'react-dom';
+import { useEffect, useActionState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -30,7 +29,7 @@ const initialState: FormState = {
 };
 
 export function CreatePostForm() {
-  const [state, formAction] = useFormState(createPostAction, initialState);
+  const [state, formAction] = useActionState(createPostAction, initialState);
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
