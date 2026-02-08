@@ -1,12 +1,16 @@
 'use client';
-import { useEffect, useActionState, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Image from 'next/image';
+import { User } from 'firebase/auth';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 
-import { createPostAction, generateAltTextAction, type FormState } from '@/lib/actions';
+import { generateAltTextAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
+import { useFirestore } from '@/firebase';
+import { rankNewPost } from '@/ai/flows/rank-new-posts-with-ai';
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,8 +18,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { CheckCircle, Info, Link as LinkIcon, BotMessageSquare, Sparkles, LoaderCircle } from 'lucide-react';
+import { BotMessageSquare, Sparkles, LoaderCircle, Link as LinkIcon } from 'lucide-react';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 
 const formSchema = z.object({
@@ -27,17 +32,16 @@ const formSchema = z.object({
   altText: z.string().optional(),
 });
 
-const initialState: FormState = {
-  message: '',
-};
+type FormData = z.infer<typeof formSchema>;
 
-export function CreatePostForm() {
-  const [state, formAction] = useActionState(createPostAction, initialState);
+export function CreatePostForm({ user }: { user: User }) {
   const { toast } = useToast();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const firestore = useFirestore();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
@@ -48,36 +52,6 @@ export function CreatePostForm() {
       altText: '',
     },
   });
-
-  useEffect(() => {
-    if (state.success) {
-      toast({
-        title: "Post Analyzed!",
-        description: (
-          <div className="space-y-2">
-            <p>{state.message}</p>
-            {state.aiResult && (
-              <div className="text-sm space-y-1">
-                <p><strong>Relevance Score:</strong> {state.aiResult.relevanceScore.toFixed(2)}</p>
-                <p><strong>Recommendation:</strong> {state.aiResult.boostRecommendation ? "Boost Recommended" : "No Boost"}</p>
-                <p><strong>Reasoning:</strong> {state.aiResult.reasoning}</p>
-              </div>
-            )}
-          </div>
-        ),
-        variant: "default",
-      });
-      form.reset();
-      setImagePreview(null);
-    } else if (state.message && state.issues) {
-      toast({
-        title: "Error",
-        description: state.message,
-        variant: "destructive",
-      });
-    }
-  }, [state, toast, form]);
-
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -124,10 +98,67 @@ export function CreatePostForm() {
     }
   };
 
+  const onSubmit = async (data: FormData) => {
+    if (!firestore || !user) return;
+
+    setIsSubmitting(true);
+    try {
+      const tagsArray = (data.tags || '').split(',').map(tag => tag.trim()).filter(Boolean);
+
+      const aiResult = await rankNewPost({
+        title: data.title,
+        content: data.content,
+        tags: tagsArray,
+        altText: data.altText,
+      });
+
+      const postData = {
+        ...data,
+        tags: tagsArray,
+        uid: user.uid,
+        author: user.displayName || 'Anonymous',
+        avatarUrl: user.photoURL || '',
+        createdAt: serverTimestamp(),
+        upvotes: 0,
+        downvotes: 0,
+        comments: 0,
+        imageUrl: imagePreview || '', // This is not ideal, you should upload the image to a storage bucket
+        aiResult,
+      };
+
+      const postsCollection = collection(firestore, 'posts');
+      addDoc(postsCollection, postData)
+        .catch(async (serverError) => {
+            const permissionError = new FirestorePermissionError({
+                path: postsCollection.path,
+                operation: 'create',
+                requestResourceData: postData
+            });
+            errorEmitter.emit('permission-error', permissionError);
+        });
+
+      toast({
+        title: "Post Created & Analyzed!",
+        description: `Relevance: ${aiResult.relevanceScore.toFixed(2)}. ${aiResult.reasoning}`,
+      });
+      form.reset();
+      setImagePreview(null);
+
+    } catch (error: any) {
+      toast({
+        title: "Error Creating Post",
+        description: error.message || "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
 
   return (
     <Form {...form}>
-      <form action={formAction} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Post Details</CardTitle>
@@ -259,9 +290,9 @@ export function CreatePostForm() {
         </Card>
         
         <div className="flex justify-end">
-            <Button type="submit">
-                <BotMessageSquare className="mr-2 h-4 w-4" />
-                Create & Analyze Post
+            <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? <LoaderCircle className="animate-spin" /> : <BotMessageSquare className="mr-2 h-4 w-4" />}
+                {isSubmitting ? 'Submitting...' : 'Create & Analyze Post'}
             </Button>
         </div>
       </form>

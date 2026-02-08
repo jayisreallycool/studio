@@ -5,12 +5,28 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Timestamp } from 'firebase/firestore';
+import { formatDistanceToNow } from 'date-fns';
+
 
 interface PostCardProps {
   post: Post;
 }
 
 export function PostCard({ post }: PostCardProps) {
+  const getCreatedAt = () => {
+    if (!post.createdAt) return '';
+    if (typeof post.createdAt === 'string') {
+      return post.createdAt;
+    }
+    // Check if it's a Firestore Timestamp
+    if (post.createdAt && typeof (post.createdAt as Timestamp).toDate === 'function') {
+      return formatDistanceToNow((post.createdAt as Timestamp).toDate(), { addSuffix: true });
+    }
+    return '';
+  };
+
+
   return (
     <Card className="overflow-hidden">
       <div className="flex">
@@ -32,7 +48,7 @@ export function PostCard({ post }: PostCardProps) {
               </Avatar>
               <span>Posted by {post.author}</span>
               <span>•</span>
-              <span>{post.createdAt}</span>
+              <span>{getCreatedAt()}</span>
             </div>
             <h2 className="text-xl font-semibold leading-tight pt-2">{post.title}</h2>
           </CardHeader>
