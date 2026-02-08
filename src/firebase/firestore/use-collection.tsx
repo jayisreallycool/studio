@@ -29,9 +29,8 @@ export function useCollection<T>(q: Query | null) {
         setLoading(false);
       },
       (error) => {
-        console.error('Error fetching collection:', error);
         const permissionError = new FirestorePermissionError({
-          path: (q as any).path ?? 'a collection query',
+          path: 'a collection query',
           operation: 'list'
         });
         errorEmitter.emit('permission-error', permissionError);

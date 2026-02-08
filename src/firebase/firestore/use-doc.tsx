@@ -30,7 +30,6 @@ export function useDoc<T>(ref: DocumentReference | null) {
         setLoading(false);
       },
       (error) => {
-        console.error('Error fetching document:', error);
         const permissionError = new FirestorePermissionError({
           path: ref.path,
           operation: 'get'
