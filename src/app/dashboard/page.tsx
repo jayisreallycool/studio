@@ -21,19 +21,19 @@ export default function DashboardPage() {
 
   const statsRef = useMemo(() => {
     if (!firestore || !user) return null;
-    return doc(firestore, `users/${user.uid}/dashboard/stats/main`);
+    return doc(firestore, `users/${user.uid}/dashboard/stats`);
   }, [firestore, user]);
   const { data: dashboardStats } = useDoc<DashboardStats>(statsRef);
 
   const earningsRef = useMemo(() => {
     if (!firestore || !user) return null;
-    return doc(firestore, `users/${user.uid}/dashboard/earnings/chart`);
+    return doc(firestore, `users/${user.uid}/dashboard/earnings`);
   }, [firestore, user]);
   const { data: earningsData } = useDoc<{ data: EarningsData }>(earningsRef);
 
   const recentPostsRef = useMemo(() => {
     if (!firestore || !user) return null;
-    return doc(firestore, `users/${user.uid}/dashboard/posts/recent`);
+    return doc(firestore, `users/${user.uid}/dashboard/posts`);
   }, [firestore, user]);
   const { data: recentPostsData } = useDoc<{ data: RecentPostData }>(recentPostsRef);
 

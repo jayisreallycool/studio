@@ -104,15 +104,15 @@
         "schema": { "$ref": "#/entities/UserProfile" },
         "description": "User profile document."
     },
-    "/users/{userId}/dashboard/stats/main": {
+    "/users/{userId}/dashboard/stats": {
         "schema": { "$ref": "#/entities/DashboardStats" },
         "description": "Dashboard statistics for a user."
     },
-    "/users/{userId}/dashboard/earnings/chart": {
+    "/users/{userId}/dashboard/earnings": {
         "schema": { "$ref": "#/entities/EarningsData" },
         "description": "Earnings chart data for a user."
     },
-    "/users/{userId}/dashboard/posts/recent": {
+    "/users/{userId}/dashboard/posts": {
         "schema": {
             "type": "object",
             "properties": {
