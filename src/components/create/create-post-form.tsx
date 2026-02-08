@@ -23,6 +23,7 @@ const formSchema = z.object({
   content: z.string().min(50, "Content must be at least 50 characters long."),
   tags: z.string().optional(),
   affiliateLink: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
+  affiliateLinkName: z.string().optional(),
   altText: z.string().optional(),
 });
 
@@ -43,6 +44,7 @@ export function CreatePostForm() {
       content: '',
       tags: '',
       affiliateLink: '',
+      affiliateLinkName: '',
       altText: '',
     },
   });
@@ -226,7 +228,7 @@ export function CreatePostForm() {
               <CardTitle className="flex items-center gap-2"><LinkIcon className="h-5 w-5"/> Affiliate Link</CardTitle>
               <CardDescription>Add an affiliate link to monetize this post.</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="grid gap-4 sm:grid-cols-2">
             <FormField
               control={form.control}
               name="affiliateLink"
@@ -235,6 +237,19 @@ export function CreatePostForm() {
                   <FormLabel>Link URL</FormLabel>
                   <FormControl>
                     <Input type="url" placeholder="https://affiliate.example.com/product" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="affiliateLinkName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Link Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Buy Now, Check it out" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

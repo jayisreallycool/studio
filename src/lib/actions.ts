@@ -7,14 +7,15 @@ import { z } from 'zod';
 const formSchema = z.object({
   title: z.string().min(10, "Title must be at least 10 characters."),
   content: z.string().min(50, "Content must be at least 50 characters."),
-  tags: z.string(),
+  tags: z.string().optional(),
   affiliateLink: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
+  affiliateLinkName: z.string().optional(),
   altText: z.string().optional(),
 });
 
 export type FormState = {
   message: string;
-  fields?: Record<string, string>;
+  fields?: Record<string, string | undefined>;
   issues?: string[];
   aiResult?: RankNewPostOutput;
   success?: boolean;
@@ -26,6 +27,7 @@ export async function createPostAction(prevState: FormState, formData: FormData)
     content: formData.get('content'),
     tags: formData.get('tags'),
     affiliateLink: formData.get('affiliateLink'),
+    affiliateLinkName: formData.get('affiliateLinkName'),
     altText: formData.get('altText'),
   });
 
@@ -37,13 +39,16 @@ export async function createPostAction(prevState: FormState, formData: FormData)
         title: validatedFields.data?.title,
         content: validatedFields.data?.content,
         tags: validatedFields.data?.tags,
+        affiliateLink: validatedFields.data?.affiliateLink,
+        affiliateLinkName: validatedFields.data?.affiliateLinkName,
+        altText: validatedFields.data?.altText,
       },
       issues: validatedFields.error.flatten().formErrors,
     };
   }
 
   const { title, content, tags, altText } = validatedFields.data;
-  const tagsArray = tags.split(',').map(tag => tag.trim()).filter(Boolean);
+  const tagsArray = (tags || '').split(',').map(tag => tag.trim()).filter(Boolean);
 
   try {
     const aiInput: RankNewPostInput = {
