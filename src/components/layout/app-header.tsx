@@ -20,8 +20,8 @@ export function AppHeader() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-9 w-9">
-              <AvatarImage src="https://picsum.photos/seed/111/40/40" alt="@shadcn" data-ai-hint="person face"/>
-              <AvatarFallback>AA</AvatarFallback>
+              <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtZW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzA1MjU4ODd8MA&ixlib=rb-4.1.0&q=80&w=1080" alt="Affiliate User" data-ai-hint="man portrait"/>
+              <AvatarFallback>AU</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>

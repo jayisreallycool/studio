@@ -1,4 +1,9 @@
 import type { Post } from '@/types';
+import { PlaceHolderImages } from './placeholder-images';
+
+const findImage = (id: string) => PlaceHolderImages.find(img => img.id === id)?.imageUrl || '';
+const findImageHint = (id: string) => PlaceHolderImages.find(img => img.id === id)?.imageHint || '';
+
 
 export const posts: Post[] = [
   {
@@ -6,9 +11,9 @@ export const posts: Post[] = [
     title: 'Unlocking Passive Income: A Beginner’s Guide to Affiliate Marketing',
     content: 'Discover the foundational strategies of affiliate marketing. This guide covers everything from choosing the right niche to finding profitable affiliate programs. We\'ll walk you through setting up your first campaign and tracking its success.',
     author: 'Elena Voss',
-    avatarUrl: 'https://picsum.photos/seed/101/40/40',
-    imageUrl: 'https://picsum.photos/seed/201/800/400',
-    imageHint: 'laptop desk',
+    avatarUrl: findImage('user-avatar-1'),
+    imageUrl: findImage('post-image-1'),
+    imageHint: findImageHint('post-image-1'),
     upvotes: 125,
     downvotes: 12,
     comments: 45,
@@ -20,9 +25,9 @@ export const posts: Post[] = [
     title: 'Top 10 SEO Tools That Will Skyrocket Your Rankings in 2024',
     content: 'SEO is constantly evolving, and so are the tools. In this post, we review the top 10 SEO tools that can give you a competitive edge. From keyword research to backlink analysis, these tools are game-changers.',
     author: 'Marcus Chen',
-    avatarUrl: 'https://picsum.photos/seed/102/40/40',
-    imageUrl: 'https://picsum.photos/seed/202/800/400',
-    imageHint: 'data analytics',
+    avatarUrl: findImage('user-avatar-2'),
+    imageUrl: findImage('post-image-2'),
+    imageHint: findImageHint('post-image-2'),
     upvotes: 230,
     downvotes: 5,
     comments: 88,
@@ -34,9 +39,9 @@ export const posts: Post[] = [
     title: 'The Art of Conversion: How to Turn Clicks into Cash',
     content: 'Getting clicks is only half the battle. This article dives deep into conversion rate optimization (CRO) techniques for affiliate marketers. Learn about persuasive copywriting, effective call-to-actions, and A/B testing your landing pages.',
     author: 'Sophie Dubois',
-    avatarUrl: 'https://picsum.photos/seed/103/40/40',
-    imageUrl: 'https://picsum.photos/seed/203/800/400',
-    imageHint: 'money growth',
+    avatarUrl: findImage('user-avatar-3'),
+    imageUrl: findImage('post-image-3'),
+    imageHint: findImageHint('post-image-3'),
     upvotes: 98,
     downvotes: 8,
     comments: 32,
