@@ -1,6 +1,6 @@
 'use client';
-import { useState, useEffect, useMemo } from 'react';
-import { onSnapshot, Query, DocumentData, collection, query as firestoreQuery, where, getDocs, orderBy } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
+import { onSnapshot, Query } from 'firebase/firestore';
 import { useFirestore } from '../provider';
 import { errorEmitter } from '../error-emitter';
 import { FirestorePermissionError } from '../errors';
@@ -31,7 +31,7 @@ export function useCollection<T>(q: Query | null) {
       (error) => {
         console.error('Error fetching collection:', error);
         const permissionError = new FirestorePermissionError({
-          path: q instanceof firestoreQuery ? 'multiple paths' : q.path,
+          path: (q as any).path ?? 'a collection query',
           operation: 'list'
         });
         errorEmitter.emit('permission-error', permissionError);
