@@ -14,9 +14,10 @@ import { FirestorePermissionError } from '@/firebase/errors';
 
 interface PostCardProps {
   post: Post;
+  priority?: boolean;
 }
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, priority = false }: PostCardProps) {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
@@ -89,7 +90,7 @@ export function PostCard({ post }: PostCardProps) {
         
         {post.imageUrl && (
             <div className="relative w-full mt-2 overflow-hidden border rounded-md aspect-video max-h-96">
-              <Image src={post.imageUrl} alt={post.title} fill className="object-cover" data-ai-hint={post.imageHint} />
+              <Image src={post.imageUrl} alt={post.title} fill className="object-cover" data-ai-hint={post.imageHint} priority={priority} />
             </div>
         )}
 

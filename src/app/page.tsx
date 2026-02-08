@@ -27,8 +27,8 @@ export default function Home() {
         </div>
       )}
       {!loading && posts && posts.length > 0 ? (
-        posts.map((post) => (
-          <PostCard key={post.id} post={post} />
+        posts.map((post, index) => (
+          <PostCard key={post.id} post={post} priority={index === 0} />
         ))
       ) : null}
       {!loading && (!posts || posts.length === 0) && (
