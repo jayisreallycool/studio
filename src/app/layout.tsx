@@ -1,13 +1,17 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { Inter } from 'next/font/google';
+import { IBM_Plex_Sans } from 'next/font/google';
 import { Toaster } from "@/components/ui/toaster";
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/app-sidebar';
 import { AppHeader } from '@/components/layout/app-header';
 import { FirebaseClientProvider } from '@/firebase';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const ibmPlexSans = IBM_Plex_Sans({ 
+  subsets: ['latin'],
+  weight: ["400", "500", "600", "700"],
+  variable: '--font-body' 
+});
 
 export const metadata: Metadata = {
   title: 'Affluence Arena',
@@ -24,9 +28,9 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
-      <body className={`${inter.variable} font-body antialiased`}>
+      <body className={`${ibmPlexSans.variable} font-body antialiased`}>
         <FirebaseClientProvider>
           <SidebarProvider>
             <div className="flex min-h-screen">

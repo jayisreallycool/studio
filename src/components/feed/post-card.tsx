@@ -1,6 +1,6 @@
 import type { Post } from '@/types';
 import Image from 'next/image';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2 } from 'lucide-react';
@@ -47,7 +47,7 @@ export function PostCard({ post }: PostCardProps) {
 
     // For this MVP, we're not tracking individual votes, so a user can vote multiple times.
     // A production app would add a subcollection to track which users have voted.
-    await updateDoc(postRef, {
+    updateDoc(postRef, {
       [fieldToUpdate]: increment(1),
     }).catch((err) => {
       console.error('Vote failed', err);
@@ -60,56 +60,56 @@ export function PostCard({ post }: PostCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden">
-      <div className="flex-1">
-        <CardHeader className="p-4 pb-2">
-          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-            <Avatar className="h-6 w-6">
-              <AvatarImage src={post.avatarUrl} alt={post.author} />
-              <AvatarFallback>{post.author.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <span>Posted by {post.author}</span>
-            <span>•</span>
-            <span>{getCreatedAt()}</span>
-          </div>
-          <h2 className="text-xl font-semibold leading-tight pt-2">{post.title}</h2>
-        </CardHeader>
-        <CardContent className="p-4 pt-2">
-          {post.imageUrl && (
-            <div className="relative aspect-video rounded-md overflow-hidden mb-4">
+    <Card className="flex flex-row overflow-hidden transition-colors duration-200 bg-card hover:border-primary/50">
+      <div className="flex flex-col items-center w-10 p-1 space-y-1 bg-background">
+        <Button variant="ghost" size="icon" className="w-8 h-8 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10" onClick={() => handleVote('up')}>
+          <ArrowBigUp className="h-5 w-5" />
+        </Button>
+        <span className="text-xs font-bold text-foreground">{post.upvotes - post.downvotes}</span>
+        <Button variant="ghost" size="icon" className="w-8 h-8 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={() => handleVote('down')}>
+          <ArrowBigDown className="h-5 w-5" />
+        </Button>
+      </div>
+      <div className="flex-1 p-2 pl-3">
+        <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+          <Avatar className="w-5 h-5">
+            <AvatarImage src={post.avatarUrl} alt={post.author} />
+            <AvatarFallback>{post.author.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <span className="font-semibold text-foreground">/r/affiliatemarketing</span>
+          <span className="text-xs text-muted-foreground">•</span>
+          <span>Posted by u/{post.author}</span>
+          <span>{getCreatedAt()}</span>
+        </div>
+        <h2 className="mt-1 text-lg font-medium leading-tight text-foreground">{post.title}</h2>
+        
+        {post.imageUrl && (
+            <div className="relative w-full mt-2 overflow-hidden border rounded-md aspect-video max-h-96">
               <Image src={post.imageUrl} alt={post.title} fill className="object-cover" data-ai-hint={post.imageHint} />
             </div>
-          )}
-          <p className="text-muted-foreground text-sm line-clamp-3">{post.content}</p>
-          <div className="flex flex-wrap gap-2 pt-4">
-            {post.tags.map((tag) => (
-              <Badge key={tag} variant="secondary">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-        <CardFooter className="p-4 pt-2 flex items-center gap-2">
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleVote('up')}>
-              <ArrowBigUp className="h-5 w-5" />
+        )}
+
+        {!post.imageUrl && (
+            <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{post.content}</p>
+        )}
+
+        <div className="flex items-center gap-1 mt-2">
+            <Button variant="ghost" size="sm" className="px-2 py-1 text-xs text-muted-foreground h-7">
+              <MessageCircle className="w-4 h-4 mr-1.5" />
+              <span>{post.comments} Comments</span>
             </Button>
-            <span className="text-sm font-bold min-w-[2ch] text-center">{post.upvotes - post.downvotes}</span>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleVote('down')}>
-              <ArrowBigDown className="h-5 w-5" />
+            <Button variant="ghost" size="sm" className="px-2 py-1 text-xs text-muted-foreground h-7">
+              <Share2 className="w-4 h-4 mr-1.5" />
+              <span>Share</span>
             </Button>
-          </div>
-          <Button variant="ghost" size="sm" className="ml-auto">
-            <MessageCircle className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">{post.comments} Comments</span>
-            <span className="sm:hidden">{post.comments}</span>
-          </Button>
-          <Button variant="ghost" size="sm">
-            <Share2 className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Share</span>
-            <span className="sr-only sm:hidden">Share</span>
-          </Button>
-        </CardFooter>
+            <div className="flex flex-wrap gap-1 ml-auto">
+              {post.tags.map((tag) => (
+                <Badge key={tag} variant="secondary" className="px-2 py-0.5 text-xs font-normal">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+        </div>
       </div>
     </Card>
   );
