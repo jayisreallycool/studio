@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "user-avatar-1",
+      "description": "Avatar for Elena Voss",
+      "imageUrl": "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx3b21hbiUyMGZhY2V8ZW58MHx8fHwxNzcwNDczNzI1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman face"
+    },
+    {
+      "id": "user-avatar-2",
+      "description": "Avatar for Marcus Chen",
+      "imageUrl": "https://images.unsplash.com/photo-1624395213043-fa2e123b2656?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxtYW4lMjBmYWNlfGVufDB8fHx8MTc3MDUyMTgzNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man face"
+    },
+    {
+      "id": "user-avatar-3",
+      "description": "Avatar for Sophie Dubois",
+      "imageUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc3MDUyNTc0NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "post-image-1",
+      "description": "Image for affiliate marketing post",
+      "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxsYXB0b3AlMjBkZXNrfGVufDB8fHx8MTc3MDQ5OTkwMHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "laptop desk"
+    },
+    {
+      "id": "post-image-2",
+      "description": "Image for SEO tools post",
+      "imageUrl": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxkYXRhJTIwYW5hbHl0aWNzfGVufDB8fHx8MTc3MDQ2ODg3N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "data analytics"
+    },
+    {
+      "id": "post-image-3",
+      "description": "Image for conversion post",
+      "imageUrl": "https://images.unsplash.com/photo-1633158829585-23ba8f7c8caf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxtb25leSUyMGdyb3d0aHxlbnwwfHx8fDE3NzA0NDQxNjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "money growth"
+    }
+  ]
 }
