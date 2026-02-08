@@ -7,8 +7,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Bell, LogIn, LogOut, PanelLeft, User as UserIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth, useUser, useFirestore } from "@/firebase";
-import { GoogleAuthProvider, signInWithPopup, signOut, User } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { doc, getDoc, setDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
 
 
 export function AppHeader() {
@@ -28,16 +28,36 @@ export function AppHeader() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Check if user document exists, if not create it
+      // Check if user document exists, if not create it along with dashboard data
       const userDocRef = doc(firestore, 'users', user.uid);
       const userDoc = await getDoc(userDocRef);
+
       if (!userDoc.exists()) {
-        await setDoc(userDocRef, {
+        const newUserProfile = {
           displayName: user.displayName,
           email: user.email,
           photoURL: user.photoURL,
           createdAt: serverTimestamp()
+        };
+
+        const statsDocRef = doc(firestore, `users/${user.uid}/dashboard/stats`);
+        const earningsDocRef = doc(firestore, `users/${user.uid}/dashboard/earnings`);
+        const postsDocRef = doc(firestore, `users/${user.uid}/dashboard/posts`);
+        
+        // Use a batch write for atomicity
+        const batch = writeBatch(firestore);
+        
+        batch.set(userDocRef, newUserProfile);
+        batch.set(statsDocRef, { 
+          totalEarnings: { value: 0, change: 0 },
+          totalViews: { value: 0, change: 0 },
+          totalClicks: { value: 0, change: 0 },
+          avgConversionRate: { value: 0, change: 0 },
         });
+        batch.set(earningsDocRef, { data: [] });
+        batch.set(postsDocRef, { data: [] });
+        
+        await batch.commit();
       }
     } catch (error) {
       console.error("Error during sign-in:", error);

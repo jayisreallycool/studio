@@ -1,15 +1,16 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Image from 'next/image';
 import { User } from 'firebase/auth';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
 
 import { generateAltTextAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useStorage } from '@/firebase';
 import { rankNewPost } from '@/ai/flows/rank-new-posts-with-ai';
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -22,12 +23,11 @@ import { BotMessageSquare, Sparkles, LoaderCircle, Link as LinkIcon } from 'luci
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
-
 const formSchema = z.object({
-  title: z.string().min(10, "Title must be at least 10 characters long."),
-  content: z.string().min(50, "Content must be at least 50 characters long."),
+  title: z.string().min(10, 'Title must be at least 10 characters long.'),
+  content: z.string().min(50, 'Content must be at least 50 characters long.'),
   tags: z.string().optional(),
-  affiliateLink: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
+  affiliateLink: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
   affiliateLinkName: z.string().optional(),
   altText: z.string().optional(),
 });
@@ -37,9 +37,11 @@ type FormData = z.infer<typeof formSchema>;
 export function CreatePostForm({ user }: { user: User }) {
   const { toast } = useToast();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const firestore = useFirestore();
+  const storage = useStorage();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -56,6 +58,7 @@ export function CreatePostForm({ user }: { user: User }) {
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -63,15 +66,16 @@ export function CreatePostForm({ user }: { user: User }) {
       reader.readAsDataURL(file);
     } else {
       setImagePreview(null);
+      setImageFile(null);
     }
   };
 
   const handleGenerateAltText = async () => {
     if (!imagePreview) {
       toast({
-        title: "No Image Selected",
-        description: "Please select an image first to generate alt text.",
-        variant: "destructive",
+        title: 'No Image Selected',
+        description: 'Please select an image first to generate alt text.',
+        variant: 'destructive',
       });
       return;
     }
@@ -81,17 +85,17 @@ export function CreatePostForm({ user }: { user: User }) {
       if (result.altText) {
         form.setValue('altText', result.altText);
         toast({
-          title: "Alt Text Generated!",
-          description: "The AI-generated alt text has been added.",
+          title: 'Alt Text Generated!',
+          description: 'The AI-generated alt text has been added.',
         });
       } else {
         throw new Error(result.error || 'Unknown error');
       }
     } catch (error: any) {
       toast({
-        title: "Generation Failed",
-        description: error.message || "Could not generate alt text.",
-        variant: "destructive",
+        title: 'Generation Failed',
+        description: error.message || 'Could not generate alt text.',
+        variant: 'destructive',
       });
     } finally {
       setIsGenerating(false);
@@ -99,12 +103,19 @@ export function CreatePostForm({ user }: { user: User }) {
   };
 
   const onSubmit = async (data: FormData) => {
-    if (!firestore || !user) return;
+    if (!firestore || !user || !storage) return;
 
     setIsSubmitting(true);
     try {
-      const tagsArray = (data.tags || '').split(',').map(tag => tag.trim()).filter(Boolean);
+      const tagsArray = (data.tags || '').split(',').map((tag) => tag.trim()).filter(Boolean);
 
+      let imageUrl = '';
+      if (imageFile) {
+        const fileRef = storageRef(storage, `posts/${user.uid}/${Date.now()}_${imageFile.name}`);
+        await uploadBytes(fileRef, imageFile);
+        imageUrl = await getDownloadURL(fileRef);
+      }
+      
       const aiResult = await rankNewPost({
         title: data.title,
         content: data.content,
@@ -122,39 +133,37 @@ export function CreatePostForm({ user }: { user: User }) {
         upvotes: 0,
         downvotes: 0,
         comments: 0,
-        imageUrl: imagePreview || '', // This is not ideal, you should upload the image to a storage bucket
+        imageUrl: imageUrl,
         aiResult,
       };
 
       const postsCollection = collection(firestore, 'posts');
-      addDoc(postsCollection, postData)
-        .catch(async (serverError) => {
-            const permissionError = new FirestorePermissionError({
-                path: postsCollection.path,
-                operation: 'create',
-                requestResourceData: postData
-            });
-            errorEmitter.emit('permission-error', permissionError);
+      addDoc(postsCollection, postData).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+          path: postsCollection.path,
+          operation: 'create',
+          requestResourceData: postData,
         });
+        errorEmitter.emit('permission-error', permissionError);
+      });
 
       toast({
-        title: "Post Created & Analyzed!",
+        title: 'Post Created & Analyzed!',
         description: `Relevance: ${aiResult.relevanceScore.toFixed(2)}. ${aiResult.reasoning}`,
       });
       form.reset();
       setImagePreview(null);
-
+      setImageFile(null);
     } catch (error: any) {
       toast({
-        title: "Error Creating Post",
-        description: error.message || "An unexpected error occurred.",
-        variant: "destructive",
+        title: 'Error Creating Post',
+        description: error.message || 'An unexpected error occurred.',
+        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
     }
   };
-
 
   return (
     <Form {...form}>
@@ -191,7 +200,7 @@ export function CreatePostForm({ user }: { user: User }) {
                 </FormItem>
               )}
             />
-             <FormField
+            <FormField
               control={form.control}
               name="tags"
               render={({ field }) => (
@@ -200,9 +209,7 @@ export function CreatePostForm({ user }: { user: User }) {
                   <FormControl>
                     <Input placeholder="e.g., SEO, Marketing, Tech" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Comma-separated tags to improve discoverability.
-                  </FormDescription>
+                  <FormDescription>Comma-separated tags to improve discoverability.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -244,9 +251,7 @@ export function CreatePostForm({ user }: { user: User }) {
                       {isGenerating ? <LoaderCircle className="animate-spin" /> : <Sparkles />}
                     </Button>
                   </div>
-                  <FormDescription>
-                    Good alt text is important for SEO and accessibility.
-                  </FormDescription>
+                  <FormDescription>Good alt text is important for SEO and accessibility.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -256,8 +261,10 @@ export function CreatePostForm({ user }: { user: User }) {
 
         <Card>
           <CardHeader>
-              <CardTitle className="flex items-center gap-2"><LinkIcon className="h-5 w-5"/> Affiliate Link</CardTitle>
-              <CardDescription>Add an affiliate link to monetize this post.</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <LinkIcon className="h-5 w-5" /> Affiliate Link
+            </CardTitle>
+            <CardDescription>Add an affiliate link to monetize this post.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
             <FormField
@@ -288,12 +295,12 @@ export function CreatePostForm({ user }: { user: User }) {
             />
           </CardContent>
         </Card>
-        
+
         <div className="flex justify-end">
-            <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? <LoaderCircle className="animate-spin" /> : <BotMessageSquare className="mr-2 h-4 w-4" />}
-                {isSubmitting ? 'Submitting...' : 'Create & Analyze Post'}
-            </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? <LoaderCircle className="animate-spin" /> : <BotMessageSquare className="mr-2 h-4 w-4" />}
+            {isSubmitting ? 'Submitting...' : 'Create & Analyze Post'}
+          </Button>
         </div>
       </form>
     </Form>

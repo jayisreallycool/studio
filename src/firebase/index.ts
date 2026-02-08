@@ -2,6 +2,7 @@
 import { getApp, getApps, initializeApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
+import { getStorage, FirebaseStorage } from 'firebase/storage';
 import { firebaseConfig } from './config';
 import { useCollection } from './firestore/use-collection';
 import { useDoc } from './firestore/use-doc';
@@ -11,12 +12,14 @@ import {
   useFirebaseApp,
   useFirestore,
   useAuth,
+  useStorage,
 } from './provider';
 import { FirebaseClientProvider } from './client-provider';
 
 let firebaseApp: FirebaseApp;
 let auth: Auth;
 let firestore: Firestore;
+let storage: FirebaseStorage;
 
 function initializeFirebase() {
     if (typeof window !== 'undefined') {
@@ -27,10 +30,11 @@ function initializeFirebase() {
         }
         auth = getAuth(firebaseApp);
         firestore = getFirestore(firebaseApp);
+        storage = getStorage(firebaseApp);
     }
   // This is for server-side rendering, which we aren't using for Firebase services,
   // but it prevents errors during the build process.
-  return { firebaseApp, auth, firestore };
+  return { firebaseApp, auth, firestore, storage };
 }
 
 export {
@@ -43,4 +47,5 @@ export {
   useFirebaseApp,
   useFirestore,
   useAuth,
+  useStorage,
 };

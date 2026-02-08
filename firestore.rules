@@ -4,7 +4,10 @@ service cloud.firestore {
     match /posts/{postId} {
       allow read: if true;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
-      allow update, delete: if request.auth != null && request.auth.uid == resource.data.uid;
+      // Allow author to delete
+      allow delete: if request.auth != null && request.auth.uid == resource.data.uid;
+      // Allow any authenticated user to update (for voting, and owners can edit through the UI)
+      allow update: if request.auth != null;
     }
     match /challenges/{challengeId} {
       allow read: if true;
@@ -13,11 +16,12 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if true;
       allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
       
       // Allow user to only access their own dashboard data
       match /dashboard/{document=**} {
         allow read: if request.auth != null && request.auth.uid == userId;
-        allow write: if false; // Dashboard data is read-only for now
+        allow write: if request.auth != null && request.auth.uid == userId;
       }
     }
   }

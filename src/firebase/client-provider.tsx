@@ -10,13 +10,14 @@ interface FirebaseClientProviderProps {
 export function FirebaseClientProvider({
   children,
 }: FirebaseClientProviderProps) {
-  const { firebaseApp, auth, firestore } = initializeFirebase();
+  const { firebaseApp, auth, firestore, storage } = initializeFirebase();
 
   return (
     <FirebaseProvider
       firebaseApp={firebaseApp}
       auth={auth}
       firestore={firestore}
+      storage={storage}
     >
       {children}
     </FirebaseProvider>
