@@ -13,9 +13,14 @@ export type Post = {
   downvotes: number;
   comments: number;
   tags: string[];
-  createdAt: Timestamp | string; // Support both server and client side representations
+  createdAt: Timestamp | string;
   affiliateLink?: string;
   affiliateLinkName?: string;
+  aiResult?: {
+    relevanceScore: number;
+    reasoning: string;
+    boostRecommendation: boolean;
+  };
 };
 
 export type Challenge = {
@@ -46,4 +51,4 @@ export type RecentPostData = {
   clicks: number;
   conversions: number;
   earnings: number;
-}[];
+};

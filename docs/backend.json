@@ -18,7 +18,15 @@
         "tags": { "type": "array", "items": { "type": "string" } },
         "createdAt": { "type": "object" },
         "affiliateLink": { "type": "string", "format": "uri" },
-        "affiliateLinkName": { "type": "string" }
+        "affiliateLinkName": { "type": "string" },
+        "aiResult": {
+          "type": "object",
+          "properties": {
+            "relevanceScore": { "type": "number" },
+            "reasoning": { "type": "string" },
+            "boostRecommendation": { "type": "boolean" }
+          }
+        }
       },
       "required": ["uid", "title", "content", "author", "createdAt"]
     },
