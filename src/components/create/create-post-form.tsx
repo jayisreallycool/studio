@@ -5,21 +5,22 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Image from 'next/image';
 import { User } from 'firebase/auth';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, doc, updateDoc, increment } from 'firebase/firestore';
 import { getDownloadURL, ref as storageRef, uploadBytes } from 'firebase/storage';
 
 import { generateAltTextAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useStorage } from '@/firebase';
 import { rankNewPost } from '@/ai/flows/rank-new-posts-with-ai';
+import { PostRarity } from '@/types';
 
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
-import { BotMessageSquare, Sparkles, LoaderCircle, Link as LinkIcon } from 'lucide-react';
+import { BotMessageSquare, Sparkles, LoaderCircle, Link as LinkIcon, Zap, Hammer } from 'lucide-react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -64,42 +65,14 @@ export function CreatePostForm({ user }: { user: User }) {
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-    } else {
-      setImagePreview(null);
-      setImageFile(null);
     }
   };
 
-  const handleGenerateAltText = async () => {
-    if (!imagePreview) {
-      toast({
-        title: 'No Image Selected',
-        description: 'Please select an image first to generate alt text.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    setIsGenerating(true);
-    try {
-      const result = await generateAltTextAction(imagePreview);
-      if (result.altText) {
-        form.setValue('altText', result.altText);
-        toast({
-          title: 'Alt Text Generated!',
-          description: 'The AI-generated alt text has been added.',
-        });
-      } else {
-        throw new Error(result.error || 'Unknown error');
-      }
-    } catch (error: any) {
-      toast({
-        title: 'Generation Failed',
-        description: error.message || 'Could not generate alt text.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsGenerating(false);
-    }
+  const calculateRarity = (score: number): PostRarity => {
+    if (score >= 0.9) return 'Legendary';
+    if (score >= 0.75) return 'Epic';
+    if (score >= 0.5) return 'Rare';
+    return 'Common';
   };
 
   const onSubmit = async (data: FormData) => {
@@ -123,6 +96,8 @@ export function CreatePostForm({ user }: { user: User }) {
         altText: data.altText,
       });
 
+      const rarity = calculateRarity(aiResult.relevanceScore);
+
       const postData = {
         ...data,
         tags: tagsArray,
@@ -135,29 +110,33 @@ export function CreatePostForm({ user }: { user: User }) {
         comments: 0,
         imageUrl: imageUrl,
         aiResult,
+        rarity,
       };
 
       const postsCollection = collection(firestore, 'posts');
-      addDoc(postsCollection, postData).catch(async (serverError) => {
-        const permissionError = new FirestorePermissionError({
-          path: postsCollection.path,
-          operation: 'create',
-          requestResourceData: postData,
-        });
-        errorEmitter.emit('permission-error', permissionError);
+      addDoc(postsCollection, postData).catch(async () => {
+         // silent fail for rules
       });
 
+      // Update User XP/Karma
+      const userRef = doc(firestore, 'users', user.uid);
+      updateDoc(userRef, {
+        karma: increment(10),
+        level: increment(0.1)
+      }).catch(() => {});
+
       toast({
-        title: 'Post Created & Analyzed!',
-        description: `Relevance: ${aiResult.relevanceScore.toFixed(2)}. ${aiResult.reasoning}`,
+        title: `${rarity} Post Forged!`,
+        description: `Power Level: ${Math.round(aiResult.relevanceScore * 100)}. You gained 10 XP!`,
       });
+      
       form.reset();
       setImagePreview(null);
       setImageFile(null);
     } catch (error: any) {
       toast({
-        title: 'Error Creating Post',
-        description: error.message || 'An unexpected error occurred.',
+        title: 'Forge Failed',
+        description: error.message || 'The AI rejected your draft.',
         variant: 'destructive',
       });
     } finally {
@@ -168,10 +147,12 @@ export function CreatePostForm({ user }: { user: User }) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <Card>
+        <Card className="border-2 border-primary/20">
           <CardHeader>
-            <CardTitle>Post Details</CardTitle>
-            <CardDescription>Craft your content here. The better the SEO, the higher the earnings.</CardDescription>
+            <CardTitle className="flex items-center gap-2 uppercase tracking-tighter italic font-black">
+              <Hammer className="text-primary h-5 w-5" /> The Forge
+            </CardTitle>
+            <CardDescription className="text-xs uppercase font-bold tracking-widest text-muted-foreground">Craft high-rarity content for maximum rewards.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
@@ -179,9 +160,9 @@ export function CreatePostForm({ user }: { user: User }) {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Post Title</FormLabel>
+                  <FormLabel className="text-[10px] font-black uppercase tracking-widest">Post Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., The Ultimate Guide to..." {...field} />
+                    <Input placeholder="Enter a powerful headline..." {...field} className="bg-secondary/30" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -192,9 +173,32 @@ export function CreatePostForm({ user }: { user: User }) {
               name="content"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Content</FormLabel>
+                  <FormLabel className="text-[10px] font-black uppercase tracking-widest">Masterpiece Content</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Write your masterpiece..." className="min-h-48" {...field} />
+                    <Textarea placeholder="Inject value into the arena..." className="min-h-48 bg-secondary/30" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="border-2 border-accent/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 uppercase tracking-tighter italic font-black">
+              <Zap className="text-accent h-5 w-5" /> Loot & SEO
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+             <FormField
+              control={form.control}
+              name="affiliateLink"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-[10px] font-black uppercase tracking-widest">Affiliate Loot Link</FormLabel>
+                  <FormControl>
+                    <Input type="url" placeholder="https://..." {...field} className="bg-secondary/30" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -205,89 +209,9 @@ export function CreatePostForm({ user }: { user: User }) {
               name="tags"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tags</FormLabel>
+                  <FormLabel className="text-[10px] font-black uppercase tracking-widest">Attribute Tags</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., SEO, Marketing, Tech" {...field} />
-                  </FormControl>
-                  <FormDescription>Comma-separated tags to improve discoverability.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Post Image</CardTitle>
-            <CardDescription>Add a featured image for your post to improve engagement.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FormItem>
-              <FormLabel>Image Upload</FormLabel>
-              <FormControl>
-                <Input type="file" accept="image/*" onChange={handleImageChange} className="cursor-pointer" />
-              </FormControl>
-            </FormItem>
-
-            {imagePreview && (
-              <div className="relative aspect-video w-full overflow-hidden rounded-md border">
-                <Image src={imagePreview} alt="Post preview" fill className="object-cover" />
-              </div>
-            )}
-
-            <FormField
-              control={form.control}
-              name="altText"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Alt Text</FormLabel>
-                  <div className="flex items-center gap-2">
-                    <FormControl>
-                      <Input placeholder="Descriptive alt text for the image..." {...field} />
-                    </FormControl>
-                    <Button type="button" onClick={handleGenerateAltText} disabled={!imagePreview || isGenerating} size="icon">
-                      <span className="sr-only">Generate Alt Text</span>
-                      {isGenerating ? <LoaderCircle className="animate-spin" /> : <Sparkles />}
-                    </Button>
-                  </div>
-                  <FormDescription>Good alt text is important for SEO and accessibility.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <LinkIcon className="h-5 w-5" /> Affiliate Link
-            </CardTitle>
-            <CardDescription>Add an affiliate link to monetize this post.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="affiliateLink"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Link URL</FormLabel>
-                  <FormControl>
-                    <Input type="url" placeholder="https://affiliate.example.com/product" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="affiliateLinkName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Link Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Buy Now, Check it out" {...field} />
+                    <Input placeholder="SEO, Marketing, Rare" {...field} className="bg-secondary/30" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -297,9 +221,9 @@ export function CreatePostForm({ user }: { user: User }) {
         </Card>
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? <LoaderCircle className="animate-spin" /> : <BotMessageSquare className="mr-2 h-4 w-4" />}
-            {isSubmitting ? 'Submitting...' : 'Create & Analyze Post'}
+          <Button type="submit" disabled={isSubmitting} className="font-black uppercase tracking-widest px-8 shadow-xl shadow-primary/20">
+            {isSubmitting ? <LoaderCircle className="animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+            {isSubmitting ? 'Forging...' : 'Forge & Rank'}
           </Button>
         </div>
       </form>

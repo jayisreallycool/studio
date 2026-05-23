@@ -1,5 +1,7 @@
 import { Timestamp } from 'firebase/firestore';
 
+export type PostRarity = 'Common' | 'Rare' | 'Epic' | 'Legendary';
+
 export type Post = {
   id: string;
   uid: string;
@@ -16,6 +18,7 @@ export type Post = {
   createdAt: Timestamp | string;
   affiliateLink?: string;
   affiliateLinkName?: string;
+  rarity?: PostRarity;
   aiResult?: {
     relevanceScore: number;
     reasoning: string;
@@ -37,6 +40,8 @@ export type DashboardStats = {
   totalViews: { value: number; change: number };
   totalClicks: { value: number; change: number };
   avgConversionRate: { value: number; change: number };
+  karma?: number;
+  level?: number;
 };
 
 export type EarningsData = {
@@ -44,11 +49,11 @@ export type EarningsData = {
   earnings: number;
 }[];
 
-export type RecentPostData = {
-  id: string;
-  title: string;
-  views: number;
-  clicks: number;
-  conversions: number;
-  earnings: number;
+export type UserProfile = {
+  displayName: string;
+  email: string;
+  photoURL: string;
+  inventory?: string[];
+  level: number;
+  karma: number;
 };

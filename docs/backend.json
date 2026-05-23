@@ -2,98 +2,41 @@
   "entities": {
     "Post": {
       "title": "Post",
-      "description": "A user-generated post in the feed.",
+      "description": "A gamified post in the arena.",
       "type": "object",
       "properties": {
-        "uid": { "type": "string", "description": "The ID of the user who created the post." },
+        "uid": { "type": "string" },
         "title": { "type": "string" },
         "content": { "type": "string" },
         "author": { "type": "string" },
         "avatarUrl": { "type": "string", "format": "uri" },
         "imageUrl": { "type": "string", "format": "uri" },
-        "imageHint": { "type": "string" },
         "upvotes": { "type": "number" },
         "downvotes": { "type": "number" },
         "comments": { "type": "number" },
         "tags": { "type": "array", "items": { "type": "string" } },
         "createdAt": { "type": "object" },
+        "rarity": { "type": "string", "enum": ["Common", "Rare", "Epic", "Legendary"] },
         "affiliateLink": { "type": "string", "format": "uri" },
-        "affiliateLinkName": { "type": "string" },
         "aiResult": {
           "type": "object",
           "properties": {
             "relevanceScore": { "type": "number" },
-            "reasoning": { "type": "string" },
-            "boostRecommendation": { "type": "boolean" }
+            "reasoning": { "type": "string" }
           }
         }
-      },
-      "required": ["uid", "title", "content", "author", "createdAt"]
-    },
-    "Challenge": {
-      "title": "Challenge",
-      "description": "A gamified challenge for users to complete.",
-      "type": "object",
-      "properties": {
-        "title": { "type": "string" },
-        "description": { "type": "string" },
-        "reward": { "type": "string" },
-        "progress": { "type": "number" },
-        "goal": { "type": "number" }
-      },
-      "required": ["title", "description", "reward", "goal"]
+      }
     },
     "UserProfile": {
-        "title": "User Profile",
-        "description": "Represents a user's profile.",
-        "type": "object",
-        "properties": {
-          "displayName": { "type": "string" },
-          "email": { "type": "string", "format": "email" },
-          "photoURL": { "type": "string", "format": "uri" }
-        },
-        "required": ["displayName", "email", "photoURL"]
-    },
-    "DashboardStats": {
-        "title": "Dashboard Statistics",
-        "description": "User-specific dashboard analytics.",
-        "type": "object",
-        "properties": {
-            "totalEarnings": { "type": "object", "properties": { "value": { "type": "number" }, "change": { "type": "number" } } },
-            "totalViews": { "type": "object", "properties": { "value": { "type": "number" }, "change": { "type": "number" } } },
-            "totalClicks": { "type": "object", "properties": { "value": { "type": "number" }, "change": { "type": "number" } } },
-            "avgConversionRate": { "type": "object", "properties": { "value": { "type": "number" }, "change": { "type": "number" } } }
-        }
-    },
-    "EarningsData": {
-        "title": "Earnings Data",
-        "description": "User's earnings data over time.",
-        "type": "object",
-        "properties": {
-            "data": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "month": { "type": "string" },
-                        "earnings": { "type": "number" }
-                    }
-                }
-            }
-        }
-    },
-    "RecentPost": {
-        "title": "Recent Post",
-        "description": "Summary of a recent post's performance.",
-        "type": "object",
-        "properties": {
-            "id": { "type": "string" },
-            "title": { "type": "string" },
-            "views": { "type": "number" },
-            "clicks": { "type": "number" },
-            "conversions": { "type": "number" },
-            "earnings": { "type": "number" }
-        }
+      "title": "Operator Profile",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "level": { "type": "number" },
+        "karma": { "type": "number" },
+        "inventory": { "type": "array", "items": { "type": "string" } }
+      }
     }
   },
   "auth": {
@@ -102,35 +45,11 @@
   "firestore": {
     "/posts": {
       "schema": { "$ref": "#/entities/Post" },
-      "description": "Collection of all user posts."
-    },
-    "/challenges": {
-      "schema": { "$ref": "#/entities/Challenge" },
-      "description": "Collection of all challenges."
+      "description": "Arena posts feed."
     },
     "/users/{userId}": {
-        "schema": { "$ref": "#/entities/UserProfile" },
-        "description": "User profile document."
-    },
-    "/users/{userId}/dashboard/stats": {
-        "schema": { "$ref": "#/entities/DashboardStats" },
-        "description": "Dashboard statistics for a user."
-    },
-    "/users/{userId}/dashboard/earnings": {
-        "schema": { "$ref": "#/entities/EarningsData" },
-        "description": "Earnings chart data for a user."
-    },
-    "/users/{userId}/dashboard/posts": {
-        "schema": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": { "$ref": "#/entities/RecentPost" }
-                }
-            }
-        },
-        "description": "Recent posts performance for a user."
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Operator profile data."
     }
   }
 }
