@@ -1,31 +1,31 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Lightbulb, CheckCircle } from 'lucide-react';
+import { Scroll, Sword } from 'lucide-react';
 
 const tips = [
-  "Use your main keyword in the title.",
-  "Include keywords naturally in the first 100 words.",
-  "Write a compelling meta description.",
-  "Use short paragraphs and sentences.",
-  "Add relevant images with alt text.",
-  "Link to other relevant posts (internal linking).",
-  "Aim for a content length of at least 1000 words for competitive topics."
+  "Choose a name that commands attention.",
+  "Write deep lore (at least 50 words) to anchor the artifact.",
+  "Assign attributes that resonate with the Arena meta.",
+  "Visual scans (images) with clear descriptions increase Power Level.",
+  "Legendary artifacts often link to rare loot drops.",
+  "Engage with other Operators to boost your Karma.",
 ];
 
 export function SeoTips() {
   return (
-    <Card className="sticky top-24">
+    <Card className="sticky top-24 border-accent/20 bg-accent/5 backdrop-blur-md">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Lightbulb className="text-accent" />
-          SEO Optimization Tips
+        <CardTitle className="flex items-center gap-2 uppercase tracking-tighter italic font-black text-accent">
+          <Scroll className="h-5 w-5" />
+          The Forge Guide
         </CardTitle>
-      </CardHeader>
+      </Header>
       <CardContent>
-        <ul className="space-y-3">
+        <ul className="space-y-4">
           {tips.map((tip, index) => (
-            <li key={index} className="flex items-start gap-3">
-              <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-              <span className="text-sm text-muted-foreground">{tip}</span>
+            <li key={index} className="flex items-start gap-3 group">
+              <Sword className="h-4 w-4 text-primary mt-1 flex-shrink-0 opacity-50 group-hover:opacity-100 transition-opacity" />
+              <span className="text-sm font-medium text-muted-foreground leading-relaxed">{tip}</span>
             </li>
           ))}
         </ul>

@@ -1,10 +1,11 @@
+
 'use client';
 import type { Post, PostRarity } from '@/types';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Sparkles, ExternalLink, Trophy } from 'lucide-react';
+import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Sparkles, ExternalLink, ShieldCheck } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Timestamp, doc, updateDoc, increment } from 'firebase/firestore';
 import { formatDistanceToNow } from 'date-fns';
@@ -48,8 +49,8 @@ export function PostCard({ post, priority = false }: PostCardProps) {
   const handleVote = async (voteType: 'up' | 'down') => {
     if (!user) {
       toast({
-        title: 'Authentication required',
-        description: 'Please sign in to vote.',
+        title: 'Operator ID Missing',
+        description: 'Please identify yourself at the Command Center to interact.',
         variant: 'destructive',
       });
       return;
@@ -71,29 +72,30 @@ export function PostCard({ post, priority = false }: PostCardProps) {
   };
 
   return (
-    <Card className={cn("flex flex-row overflow-hidden transition-all duration-300 bg-card hover:translate-y-[-2px]", rarityClass)}>
-      <div className="flex flex-col items-center w-12 p-1 space-y-1 bg-background/50 border-r">
-        <Button variant="ghost" size="icon" className="w-10 h-10 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10" onClick={() => handleVote('up')}>
-          <ArrowBigUp className="h-6 w-6" />
+    <Card className={cn("flex flex-row overflow-hidden transition-all duration-300 bg-card/60 backdrop-blur-md hover:bg-card/80 border-white/5", rarityClass)}>
+      <div className="flex flex-col items-center w-14 p-2 space-y-2 bg-black/40 border-r border-white/5">
+        <Button variant="ghost" size="icon" className="w-10 h-10 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" onClick={() => handleVote('up')}>
+          <ArrowBigUp className="h-7 w-7" />
         </Button>
-        <span className="text-sm font-bold text-foreground">{post.upvotes - post.downvotes}</span>
-        <Button variant="ghost" size="icon" className="w-10 h-10 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={() => handleVote('down')}>
-          <ArrowBigDown className="h-6 w-6" />
+        <span className="text-sm font-black text-foreground">{post.upvotes - post.downvotes}</span>
+        <Button variant="ghost" size="icon" className="w-10 h-10 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" onClick={() => handleVote('down')}>
+          <ArrowBigDown className="h-7 w-7" />
         </Button>
       </div>
-      <div className="flex-1 p-3">
-        <div className="flex items-center space-x-2 text-xs text-muted-foreground mb-2">
-          <Avatar className="w-5 h-5">
+      <div className="flex-1 p-5">
+        <div className="flex items-center space-x-2 text-[10px] text-muted-foreground mb-3 font-bold uppercase tracking-widest">
+          <Avatar className="w-5 h-5 border border-white/10">
             <AvatarImage src={post.avatarUrl} alt={post.author} />
             <AvatarFallback>{post.author.charAt(0)}</AvatarFallback>
           </Avatar>
-          <span className="font-semibold text-foreground">/r/arena</span>
-          <span className="text-xs text-muted-foreground">•</span>
-          <span>{post.author}</span>
+          <span className="text-primary">/a/arena</span>
+          <span>•</span>
+          <span className="text-foreground/80">{post.author}</span>
+          <span>•</span>
           <span>{getCreatedAt()}</span>
           
           {post.rarity && (
-            <Badge variant="outline" className={cn("ml-2 font-black tracking-tighter uppercase text-[10px]", getRarityColor(post.rarity))}>
+            <Badge variant="outline" className={cn("ml-2 font-black tracking-tighter uppercase text-[9px] px-2 py-0", getRarityColor(post.rarity))}>
               {post.rarity}
             </Badge>
           )}
@@ -102,56 +104,57 @@ export function PostCard({ post, priority = false }: PostCardProps) {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Badge variant="outline" className="ml-auto flex items-center gap-1 border-primary/30 text-primary cursor-help">
+                  <Badge variant="outline" className="ml-auto flex items-center gap-1 border-primary/30 text-primary cursor-help bg-primary/5 hover:bg-primary/10">
                     <Sparkles className="w-3 h-3" />
-                    {Math.round(post.aiResult.relevanceScore * 100)}%
+                    Pwr: {Math.round(post.aiResult.relevanceScore * 100)}
                   </Badge>
                 </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                  <p className="text-xs font-semibold mb-1">AI Power Level:</p>
-                  <p className="text-xs opacity-90">{post.aiResult.reasoning}</p>
+                <TooltipContent className="max-w-xs bg-black/90 border-white/10 text-xs">
+                  <p className="font-black uppercase tracking-widest text-primary mb-1">Appraiser Scan:</p>
+                  <p className="opacity-90 italic">"{post.aiResult.reasoning}"</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
         </div>
-        <h2 className="text-xl font-bold leading-tight text-foreground group-hover:text-primary transition-colors">{post.title}</h2>
+        <h2 className="text-2xl font-black italic uppercase tracking-tighter leading-none text-foreground mb-4 group-hover:text-primary transition-colors">{post.title}</h2>
         
         {post.imageUrl && (
-            <div className="relative w-full mt-3 overflow-hidden border rounded-lg aspect-video max-h-96 group">
-              <Image src={post.imageUrl} alt={post.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" data-ai-hint={post.imageHint} priority={priority} />
-              {post.rarity === 'Legendary' && <div className="absolute inset-0 bg-gradient-to-t from-yellow-500/20 to-transparent pointer-events-none" />}
+            <div className="relative w-full mt-4 overflow-hidden border border-white/10 rounded-xl aspect-video max-h-[400px] group shadow-2xl">
+              <Image src={post.imageUrl} alt={post.title} fill className="object-cover transition-transform duration-700 group-hover:scale-110" priority={priority} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+              {post.rarity === 'Legendary' && <div className="absolute inset-0 bg-yellow-500/10 animate-pulse pointer-events-none" />}
             </div>
         )}
 
-        <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-3">
+        <p className="mt-4 text-sm text-muted-foreground font-medium leading-relaxed line-clamp-4 italic border-l-2 border-white/10 pl-4">
             {post.content}
         </p>
 
         {post.affiliateLink && (
-          <div className="mt-4">
-             <Button asChild variant="accent" size="sm" className="gap-2 font-bold shadow-lg shadow-accent/20">
+          <div className="mt-6">
+             <Button asChild variant="default" className="gap-2 font-black uppercase tracking-widest text-xs h-10 px-6 shadow-xl shadow-accent/20 bg-accent text-accent-foreground hover:scale-105 active:scale-95 transition-all">
                 <a href={post.affiliateLink} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="h-4 w-4" />
-                  {post.affiliateLinkName || 'Loot Item'}
+                  <ShieldCheck className="h-4 w-4" />
+                  Claim Loot: {post.affiliateLinkName || 'Rare Drop'}
                 </a>
              </Button>
           </div>
         )}
 
-        <div className="flex items-center gap-2 mt-4">
-            <Button variant="ghost" size="sm" className="px-2 py-1 text-xs text-muted-foreground h-8 hover:bg-accent/10">
+        <div className="flex items-center gap-4 mt-8 border-t border-white/5 pt-4">
+            <Button variant="ghost" size="sm" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground h-9 px-4 hover:bg-white/5">
               <MessageCircle className="w-4 h-4 mr-2" />
-              <span>{post.comments}</span>
+              <span>{post.comments} Comms</span>
             </Button>
-            <Button variant="ghost" size="sm" className="px-2 py-1 text-xs text-muted-foreground h-8 hover:bg-accent/10">
+            <Button variant="ghost" size="sm" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground h-9 px-4 hover:bg-white/5">
               <Share2 className="w-4 h-4 mr-2" />
-              <span>Share</span>
+              <span>Broadcast</span>
             </Button>
             <div className="flex flex-wrap gap-1 ml-auto">
-              {post.tags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider">
-                  {tag}
+              {post.tags.slice(0, 3).map((tag) => (
+                <Badge key={tag} variant="secondary" className="px-2 py-0.5 text-[8px] font-black uppercase tracking-tighter bg-white/5 text-muted-foreground border-white/5">
+                  #{tag}
                 </Badge>
               ))}
             </div>

@@ -1,13 +1,14 @@
+
 {
   "entities": {
     "Post": {
-      "title": "Post",
-      "description": "A gamified post in the arena.",
+      "title": "Artifact",
+      "description": "A forged item or chronicle in the arena.",
       "type": "object",
       "properties": {
         "uid": { "type": "string" },
-        "title": { "type": "string" },
-        "content": { "type": "string" },
+        "title": { "type": "string", "description": "Name of the Artifact" },
+        "content": { "type": "string", "description": "Lore or description of the artifact." },
         "author": { "type": "string" },
         "avatarUrl": { "type": "string", "format": "uri" },
         "imageUrl": { "type": "string", "format": "uri" },
@@ -17,12 +18,12 @@
         "tags": { "type": "array", "items": { "type": "string" } },
         "createdAt": { "type": "object" },
         "rarity": { "type": "string", "enum": ["Common", "Rare", "Epic", "Legendary"] },
-        "affiliateLink": { "type": "string", "format": "uri" },
+        "affiliateLink": { "type": "string", "format": "uri", "description": "Loot drop link" },
         "aiResult": {
           "type": "object",
           "properties": {
-            "relevanceScore": { "type": "number" },
-            "reasoning": { "type": "string" }
+            "relevanceScore": { "type": "number", "description": "Power Level Score" },
+            "reasoning": { "type": "string", "description": "Appraisal reasoning" }
           }
         }
       }
@@ -45,7 +46,7 @@
   "firestore": {
     "/posts": {
       "schema": { "$ref": "#/entities/Post" },
-      "description": "Arena posts feed."
+      "description": "Arena artifact feed."
     },
     "/users/{userId}": {
       "schema": { "$ref": "#/entities/UserProfile" },

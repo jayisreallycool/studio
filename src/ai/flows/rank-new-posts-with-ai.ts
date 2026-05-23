@@ -1,8 +1,9 @@
+
 'use server';
 /**
- * @fileOverview AI flow for ranking new user-submitted posts based on relevance.
+ * @fileOverview AI flow for appraising new artifacts in the Arena.
  *
- * - rankNewPost - A function that analyzes a new post and determines its relevance.
+ * - rankNewPost - A function that appraises a new artifact and determines its Power Level.
  * - RankNewPostInput - The input type for the rankNewPost function.
  * - RankNewPostOutput - The return type for the rankNewPost function.
  */
@@ -11,10 +12,10 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const RankNewPostInputSchema = z.object({
-  title: z.string().describe('The title of the post.'),
-  content: z.string().describe('The main content of the post.'),
-  tags: z.array(z.string()).describe('Keywords or tags associated with the post.'),
-  altText: z.string().optional().describe('Alt text for the post image, if any.'),
+  title: z.string().describe('The name of the artifact.'),
+  content: z.string().describe('The lore or description of the artifact.'),
+  tags: z.array(z.string()).describe('Attributes associated with the artifact.'),
+  altText: z.string().optional().describe('Visual scan description of the artifact.'),
 });
 export type RankNewPostInput = z.infer<typeof RankNewPostInputSchema>;
 
@@ -22,15 +23,15 @@ const RankNewPostOutputSchema = z.object({
   relevanceScore: z
     .number()
     .describe(
-      'A score indicating the relevance of the post, higher values indicate greater relevance.'
+      'A Power Level score between 0 and 1. High scores mean legendary artifacts.'
     ),
   reasoning: z
     .string()
-    .describe('The AI’s reasoning for the assigned relevance score.'),
+    .describe('The AI appraisal for why this artifact has this power level.'),
   boostRecommendation: z
     .boolean()
     .describe(
-      'A boolean value, true if the post should receive a ranking boost, false otherwise.'
+      'True if the artifact is exceptional enough to be featured in the High Council.'
     ),
 });
 export type RankNewPostOutput = z.infer<typeof RankNewPostOutputSchema>;
@@ -43,16 +44,17 @@ const rankNewPostPrompt = ai.definePrompt({
   name: 'rankNewPostPrompt',
   input: {schema: RankNewPostInputSchema},
   output: {schema: RankNewPostOutputSchema},
-  prompt: `You are an AI assistant that analyzes user-submitted posts on a social content platform to determine their relevance and assign a ranking score. Good SEO is important, so consider the alt text for the image if it is provided.
+  prompt: `You are the High Appraiser of the Affluence Arena. Your job is to judge new "Artifacts" (posts) created by Operators.
 
-Analyze the following post and provide a relevance score between 0 and 1, along with reasoning for the score. Additionally, recommend whether the post should receive a ranking boost based on its relevance.
+Judge the artifact based on its lore (content), its name (title), and its attributes (tags). 
+High-quality, immersive, and valuable artifacts get a higher Power Level (relevanceScore).
 
-Post Title: {{{title}}}
-Post Content: {{{content}}}
-Post Tags: {{#each tags}}{{{this}}} {{/each}}
-{{#if altText}}Image Alt Text: {{{altText}}}{{/if}}
+Artifact Name: {{{title}}}
+Artifact Lore: {{{content}}}
+Attributes: {{#each tags}}{{{this}}} {{/each}}
+{{#if altText}}Visual Scan: {{{altText}}}{{/if}}
 
-Provide your output as a JSON object with the keys: relevanceScore, reasoning, boostRecommendation.
+Provide your appraisal as a JSON object with: relevanceScore (0-1), reasoning, and boostRecommendation.
 `,
 });
 

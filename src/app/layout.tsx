@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { IBM_Plex_Sans } from 'next/font/google';
@@ -14,8 +15,8 @@ const ibmPlexSans = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Affluence Arena',
-  description: 'A gamified social content platform designed for users to earn money through SEO and affiliate marketing.',
+  title: 'Affluence Arena | Social Gaming Protocol',
+  description: 'Forge legendary artifacts, complete quests, and climb the leaderboards in the ultimate social competition.',
 };
 
 export default function RootLayout({
@@ -25,15 +26,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className={`${ibmPlexSans.variable} font-body antialiased`}>
+      <body className={`${ibmPlexSans.variable} font-body antialiased selection:bg-primary selection:text-primary-foreground`}>
         <FirebaseClientProvider>
           <SidebarProvider>
-            <div className="flex min-h-screen">
+            <div className="flex min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900 via-background to-background">
               <AppSidebar />
               <div className="flex-1 flex flex-col">
                 <AppHeader />
