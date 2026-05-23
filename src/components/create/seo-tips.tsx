@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Scroll, Sword } from 'lucide-react';
 
@@ -19,7 +18,7 @@ export function SeoTips() {
           <Scroll className="h-5 w-5" />
           The Forge Guide
         </CardTitle>
-      </Header>
+      </CardHeader>
       <CardContent>
         <ul className="space-y-4">
           {tips.map((tip, index) => (
