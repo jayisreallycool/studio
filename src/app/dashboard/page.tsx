@@ -1,4 +1,3 @@
-
 'use client';
 import { AnalyticsCard } from '@/components/dashboard/analytics-card';
 import { EarningsChart } from '@/components/dashboard/earnings-chart';
@@ -7,7 +6,7 @@ import {
   dashboardStats as staticDashboardStats,
   earningsData as staticEarningsData,
 } from '@/lib/data';
-import { BarChart, Coins, Eye, Zap, Trophy, Shield, Star, Sword } from 'lucide-react';
+import { BarChart, Coins, Eye, Zap, Trophy, Shield, Star, Sword, Medal, Box } from 'lucide-react';
 import { useDoc, useUser, useCollection, useFirestore } from '@/firebase';
 import { DashboardStats, EarningsData, Post, UserProfile } from '@/types';
 import { doc, collection, query, where, orderBy, limit } from 'firebase/firestore';
@@ -15,6 +14,7 @@ import { useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function DashboardPage() {
   const { user, loading: userLoading } = useUser();
@@ -134,7 +134,38 @@ export default function DashboardPage() {
 
       <div className="grid gap-10 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <EarningsChart data={displayEarnings} />
+           <Tabs defaultValue="overview" className="space-y-6">
+             <TabsList className="bg-black/40 border border-white/5">
+               <TabsTrigger value="overview" className="font-black uppercase text-[10px]">Overview</TabsTrigger>
+               <TabsTrigger value="vault" className="font-black uppercase text-[10px]">The Vault</TabsTrigger>
+             </TabsList>
+             <TabsContent value="overview">
+               <EarningsChart data={displayEarnings} />
+             </TabsContent>
+             <TabsContent value="vault">
+                <Card className="bg-black/40 border-white/5">
+                  <CardHeader>
+                    <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
+                      <Box className="h-4 w-4 text-primary" /> Operator Trophies
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {profile?.trophies?.length ? (
+                      profile.trophies.map((trophy, i) => (
+                        <div key={i} className="flex flex-col items-center gap-2 p-4 rounded-xl bg-accent/5 border border-accent/20">
+                          <Medal className="h-8 w-8 text-yellow-500 animate-pulse" />
+                          <span className="text-[9px] font-black uppercase tracking-tighter text-center">{trophy}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="col-span-full py-10 text-center text-muted-foreground/60">
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em]">No Trophies Earned</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+             </TabsContent>
+           </Tabs>
         </div>
         <div className="lg:col-span-1 space-y-10">
            <Card className="bg-gradient-to-br from-card to-accent/10 border-white/5 shadow-2xl">
@@ -147,8 +178,9 @@ export default function DashboardPage() {
                {profile?.inventory?.length ? (
                  <div className="grid grid-cols-3 gap-3">
                    {profile.inventory.map((item, i) => (
-                     <div key={i} className="aspect-square bg-black/40 rounded-xl flex items-center justify-center border border-white/10 hover:border-accent/50 transition-colors cursor-help group">
+                     <div key={i} className="aspect-square bg-black/40 rounded-xl flex items-center justify-center border border-white/10 hover:border-accent/50 transition-colors cursor-help group relative">
                         <span className="text-3xl group-hover:scale-125 transition-transform">💎</span>
+                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-ping" />
                      </div>
                    ))}
                  </div>

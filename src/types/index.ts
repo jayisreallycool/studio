@@ -2,6 +2,11 @@ import { Timestamp } from 'firebase/firestore';
 
 export type PostRarity = 'Common' | 'Rare' | 'Epic' | 'Legendary';
 
+export type PostAward = {
+  type: 'Bronze' | 'Silver' | 'Gold';
+  count: number;
+};
+
 export type Post = {
   id: string;
   uid: string;
@@ -19,6 +24,7 @@ export type Post = {
   affiliateLink?: string;
   affiliateLinkName?: string;
   rarity?: PostRarity;
+  awards?: PostAward[];
   aiResult?: {
     relevanceScore: number;
     reasoning: string;
@@ -56,4 +62,5 @@ export type UserProfile = {
   inventory?: string[];
   level: number;
   karma: number;
+  trophies?: string[];
 };

@@ -1,11 +1,10 @@
-
 'use client';
 import type { Post, PostRarity } from '@/types';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Sparkles, ExternalLink, ShieldCheck } from 'lucide-react';
+import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Sparkles, ShieldCheck, Trophy, Medal } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Timestamp, doc, updateDoc, increment } from 'firebase/firestore';
 import { formatDistanceToNow } from 'date-fns';
@@ -117,7 +116,17 @@ export function PostCard({ post, priority = false }: PostCardProps) {
             </TooltipProvider>
           )}
         </div>
-        <h2 className="text-2xl font-black italic uppercase tracking-tighter leading-none text-foreground mb-4 group-hover:text-primary transition-colors">{post.title}</h2>
+        
+        <div className="flex justify-between items-start gap-4">
+          <h2 className="text-2xl font-black italic uppercase tracking-tighter leading-none text-foreground mb-2 group-hover:text-primary transition-colors">{post.title}</h2>
+          <div className="flex gap-1 shrink-0">
+             {post.awards?.map((award, i) => (
+               <Badge key={i} variant="secondary" className="bg-yellow-500/20 text-yellow-500 border-yellow-500/50 flex items-center gap-1 px-1.5 py-0">
+                 <Medal className="w-3 h-3" /> {award.count}
+               </Badge>
+             ))}
+          </div>
+        </div>
         
         {post.imageUrl && (
             <div className="relative w-full mt-4 overflow-hidden border border-white/10 rounded-xl aspect-video max-h-[400px] group shadow-2xl">
@@ -131,16 +140,19 @@ export function PostCard({ post, priority = false }: PostCardProps) {
             {post.content}
         </p>
 
-        {post.affiliateLink && (
-          <div className="mt-6">
+        <div className="flex flex-wrap items-center gap-3 mt-6">
+          {post.affiliateLink && (
              <Button asChild variant="default" className="gap-2 font-black uppercase tracking-widest text-xs h-10 px-6 shadow-xl shadow-accent/20 bg-accent text-accent-foreground hover:scale-105 active:scale-95 transition-all">
                 <a href={post.affiliateLink} target="_blank" rel="noopener noreferrer">
                   <ShieldCheck className="h-4 w-4" />
                   Claim Loot: {post.affiliateLinkName || 'Rare Drop'}
                 </a>
              </Button>
-          </div>
-        )}
+          )}
+          <Button variant="outline" className="gap-2 font-black uppercase tracking-widest text-xs h-10 px-4 border-white/10 hover:bg-white/5">
+            <Trophy className="h-4 w-4 text-yellow-500" /> Award
+          </Button>
+        </div>
 
         <div className="flex items-center gap-4 mt-8 border-t border-white/5 pt-4">
             <Button variant="ghost" size="sm" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground h-9 px-4 hover:bg-white/5">
