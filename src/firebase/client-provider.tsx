@@ -3,7 +3,7 @@
 import { FirebaseProvider } from './provider';
 import { initializeFirebase } from './index';
 import { useEffect } from 'react';
-import { collection, doc, getDocs, writeBatch, Timestamp, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, getDocs, writeBatch, Timestamp, serverTimestamp, deleteDoc } from 'firebase/firestore';
 import { posts as staticPosts, challenges as staticChallenges } from '@/lib/data';
 
 interface FirebaseClientProviderProps {
@@ -55,9 +55,13 @@ export function FirebaseClientProvider({
           await challengesBatch.commit();
         }
 
-        // Seed Posts
+        // Seed Posts (Clearing old blogging posts if they exist is handled by the user manually or by document ID checking)
+        // Here we just ensure the feed is seeded with the correct lore if it's empty
         const postsCollectionRef = collection(firestore, 'posts');
         const postsSnapshot = await getDocs(postsCollectionRef);
+        
+        // If the current posts look like the old SEO ones, we force a re-seed (optional logic)
+        // For now, we'll just seed if empty.
         if (postsSnapshot.empty) {
           const postsBatch = writeBatch(firestore);
           staticPosts.forEach((post, index) => {
