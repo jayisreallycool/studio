@@ -1,9 +1,8 @@
-
 'use client';
 import { Button } from '@/components/ui/button';
-import { Skull, Zap, Shield, Loader2, Link as LinkIcon, Github } from 'lucide-react';
+import { Skull, Zap, Shield, Loader2, Link as LinkIcon } from 'lucide-react';
 import { useAuth, useFirestore } from '@/firebase';
-import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, writeBatch, serverTimestamp } from 'firebase/firestore';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -11,13 +10,13 @@ import { cn } from '@/lib/utils';
 export function SplashScreen() {
   const auth = useAuth();
   const firestore = useFirestore();
-  const [isConnecting, setIsConnecting] = useState<string | null>(null);
+  const [isConnecting, setIsConnecting] = useState<boolean>(false);
 
-  const handleSignIn = async (providerType: 'google' | 'github') => {
+  const handleSignIn = async () => {
     if (!auth || !firestore) return;
-    setIsConnecting(providerType);
+    setIsConnecting(true);
     
-    const provider = providerType === 'google' ? new GoogleAuthProvider() : new GithubAuthProvider();
+    const provider = new GoogleAuthProvider();
     
     try {
       const result = await signInWithPopup(auth, provider);
@@ -50,7 +49,7 @@ export function SplashScreen() {
     } catch (error) {
       console.error("Link Failure:", error);
     } finally {
-      setIsConnecting(null);
+      setIsConnecting(false);
     }
   };
 
@@ -79,51 +78,29 @@ export function SplashScreen() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-4 w-full max-w-sm">
+        <div className="flex flex-col gap-4 w-full max-w-xs">
           <Button 
-            onClick={() => handleSignIn('google')}
-            disabled={!!isConnecting}
+            onClick={handleSignIn}
+            disabled={isConnecting}
             className={cn(
-              "h-16 text-xl font-black italic uppercase tracking-tighter comic-button",
-              isConnecting === 'google' ? "bg-zinc-800 text-zinc-500" : "bg-primary text-black hover:bg-primary/90"
+              "h-20 text-2xl font-black italic uppercase tracking-tighter comic-button",
+              isConnecting ? "bg-zinc-800 text-zinc-500" : "bg-primary text-black hover:bg-primary/90"
             )}
           >
-            {isConnecting === 'google' ? (
+            {isConnecting ? (
               <>
-                <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                <Loader2 className="mr-3 h-8 w-8 animate-spin" />
                 LINKING...
               </>
             ) : (
               <>
-                <LinkIcon className="mr-3 h-6 w-6" />
-                GOOGLE LINK
+                <LinkIcon className="mr-3 h-8 w-8" />
+                ESTABLISH NEURAL LINK
               </>
             )}
           </Button>
 
-          <Button 
-            onClick={() => handleSignIn('github')}
-            disabled={!!isConnecting}
-            variant="outline"
-            className={cn(
-              "h-16 text-xl font-black italic uppercase tracking-tighter comic-button",
-              isConnecting === 'github' ? "bg-zinc-800 text-zinc-500" : "bg-zinc-950 text-white border-4"
-            )}
-          >
-            {isConnecting === 'github' ? (
-              <>
-                <Loader2 className="mr-3 h-6 w-6 animate-spin" />
-                LINKING...
-              </>
-            ) : (
-              <>
-                <Github className="mr-3 h-6 w-6" />
-                GITHUB LINK
-              </>
-            )}
-          </Button>
-
-          <div className="grid grid-cols-3 gap-4 mt-4">
+          <div className="grid grid-cols-3 gap-4 mt-8">
             <div className="flex flex-col items-center gap-2 p-3 bg-zinc-900/50 border-2 border-zinc-800">
               <Zap className="w-5 h-5 text-yellow-500" />
               <span className="text-[8px] font-black uppercase text-zinc-500">Fast Pace</span>
