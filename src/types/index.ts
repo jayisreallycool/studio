@@ -76,6 +76,11 @@ export type DashboardStats = {
   avgConversionRate: { value: number; change: number };
 };
 
+export type EarningsData = {
+  month: string;
+  earnings: number;
+};
+
 export type LootItem = {
   id: string;
   name: string;

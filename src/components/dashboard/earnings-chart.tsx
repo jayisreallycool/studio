@@ -1,10 +1,12 @@
+
 'use client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bar, BarChart, XAxis, YAxis, Tooltip } from 'recharts';
 import { ChartContainer, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
+import { EarningsData } from '@/types';
 
 interface EarningsChartProps {
-  data: { month: string; earnings: number }[];
+  data: EarningsData[];
 }
 
 const chartConfig = {
