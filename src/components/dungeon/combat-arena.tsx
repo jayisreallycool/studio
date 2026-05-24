@@ -10,22 +10,14 @@ import { Swords, Heart, Skull, Zap, Shield, Flame, Target, Loader2 } from 'lucid
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { generateMonster } from '@/lib/monster-generator';
 
 interface CombatArenaProps {
   profile: UserProfile;
   userUid: string;
 }
-
-const MONSTER_TEMPLATES = [
-  { id: 'monster-golem', name: 'Void Golem', hint: 'stone monster', desc: 'A dark entity synthesized from Arena anomalies.' },
-  { id: 'monster-wyrm', name: 'Rift Wyrm', hint: 'red dragon', desc: 'A fiery serpentine terror from the depths of the rift.' },
-  { id: 'monster-stalker', name: 'Shadow Stalker', hint: 'shadow monster', desc: 'A formless horror that dwells in the lightless corners.' },
-  { id: 'monster-knight', name: 'Dread Knight', hint: 'skeleton warrior', desc: 'The reanimated remains of a failed Operator.' },
-  { id: 'monster-beholder', name: 'Chaos Gazer', hint: 'beholder monster', desc: 'An ancient watcher that sees through your neural defenses.' }
-];
 
 export function CombatArena({ profile, userUid }: CombatArenaProps) {
   const firestore = useFirestore();
@@ -39,7 +31,6 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
 
   const maxPlayerHp = useMemo(() => 100 + (profile.level * 20), [profile.level]);
 
-  // Handle initial hydration of HP to match maxPlayerHp calculated from profile
   useEffect(() => {
     if (playerHp === null) {
       setPlayerHp(maxPlayerHp);
@@ -47,29 +38,12 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
   }, [maxPlayerHp, playerHp]);
 
   const spawnMonster = () => {
-    const level = Math.floor(profile.level);
-    const template = MONSTER_TEMPLATES[Math.floor(Math.random() * MONSTER_TEMPLATES.length)];
+    const level = Math.floor(profile.level) || 1;
+    const newMonster = generateMonster(level);
     
-    const registeredImage = PlaceHolderImages.find(img => img.id === template.id);
-    const imageUrl = registeredImage?.imageUrl || `https://picsum.photos/seed/${template.id}-${Date.now()}/800/600`;
-
-    const hp = 50 + (level * 25);
-    const atk = 10 + (level * 5);
-
-    setMonster({
-      id: `monster-${Date.now()}`,
-      name: `${template.name} LVL ${level}`,
-      hp,
-      maxHp: hp,
-      atk,
-      level,
-      imageUrl,
-      imageHint: template.hint,
-      description: template.desc
-    });
-
+    setMonster(newMonster);
     setPlayerHp(maxPlayerHp);
-    setCombatLog(prev => [`New Anomaly Detected: ${template.name}!`, ...prev].slice(0, 5));
+    setCombatLog(prev => [`New Anomaly Detected: ${newMonster.name}!`, ...prev].slice(0, 5));
   };
 
   useEffect(() => {
@@ -81,8 +55,8 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
 
     setIsAttacking(true);
     const playerAtk = 15 + (profile.level * 10);
-    const crit = Math.random() > 0.8;
-    const damage = crit ? Math.floor(playerAtk * 1.5) : Math.floor(playerAtk);
+    const crit = Math.random() > 0.85;
+    const damage = crit ? Math.floor(playerAtk * 2) : Math.floor(playerAtk);
 
     const newMonsterHp = Math.max(0, monster.hp - damage);
     setMonster(prev => prev ? { ...prev, hp: newMonsterHp } : null);
@@ -115,7 +89,7 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
 
   const handleVictory = () => {
     if (!firestore) return;
-    toast({ title: "ANOMALY PURGED", description: "You gained 50 XP and 100 GP!" });
+    toast({ title: "ANOMALY PURGED", description: "You gained 50 XP and recovered precious materials!" });
     
     const userRef = doc(firestore, 'users', userUid);
     const updates = {
@@ -137,7 +111,8 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
   };
 
   const handleDefeat = () => {
-    toast({ variant: "destructive", title: "PROTOCOL FAILED", description: "You have been ejected from the sector." });
+    toast({ variant: "destructive", title: "PROTOCOL FAILED", description: "Your stability reached zero. Neural Link re-initializing..." });
+    setCombatLog(prev => ["Ejection Protocol Initiated.", ...prev].slice(0, 5));
     setTimeout(() => spawnMonster(), 2000);
   };
 
