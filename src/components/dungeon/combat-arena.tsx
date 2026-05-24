@@ -1,4 +1,3 @@
-
 'use client';
 import { useState, useEffect } from 'react';
 import { UserProfile, Monster } from '@/types';
@@ -42,7 +41,6 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
     const level = Math.floor(profile.level);
     const template = MONSTER_TEMPLATES[Math.floor(Math.random() * MONSTER_TEMPLATES.length)];
     
-    // Find the image URL from our placeholder registry
     const registeredImage = PlaceHolderImages.find(img => img.id === template.id);
     const imageUrl = registeredImage?.imageUrl || `https://picsum.photos/seed/${template.id}-${Date.now()}/800/600`;
 
@@ -150,7 +148,7 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
           <CardHeader className="bg-black border-b-4 border-black">
             <CardTitle className="text-[10px] font-black uppercase tracking-[0.3em] text-primary flex items-center gap-2">
               <Target className="w-4 h-4" /> Tactical Data
-            </Target>
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-2">
              {combatLog.map((log, i) => (
