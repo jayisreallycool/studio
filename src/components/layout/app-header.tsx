@@ -1,3 +1,4 @@
+
 'use client';
 import { useEffect, useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -65,6 +66,14 @@ export function AppHeader() {
       }
     } catch (error: any) {
       if (error.code === 'auth/popup-closed-by-user') {
+        return;
+      }
+      if (error.code === 'auth/popup-blocked') {
+        toast({
+          title: "Popup Blocked",
+          description: "Please allow popups for this site to establish your neural link.",
+          variant: "destructive"
+        });
         return;
       }
       console.error("Error during sign-in:", error);

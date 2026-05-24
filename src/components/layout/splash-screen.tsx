@@ -1,3 +1,4 @@
+
 'use client';
 import { Button } from '@/components/ui/button';
 import { Skull, Zap, Shield, Loader2, Link as LinkIcon } from 'lucide-react';
@@ -50,7 +51,14 @@ export function SplashScreen() {
       }
     } catch (error: any) {
       if (error.code === 'auth/popup-closed-by-user') {
-        // Silently handle user cancellation
+        return;
+      }
+      if (error.code === 'auth/popup-blocked') {
+        toast({
+          title: "Popup Blocked",
+          description: "Please allow popups for this site to establish your neural link.",
+          variant: "destructive"
+        });
         return;
       }
       console.error("Link Failure:", error);
