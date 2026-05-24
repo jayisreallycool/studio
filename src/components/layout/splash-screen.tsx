@@ -14,69 +14,73 @@ export function SplashScreen() {
   const { toast } = useToast();
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
 
-  const handleSignIn = async () => {
+  const handleSignIn = () => {
     if (!auth || !firestore) return;
     
-    // Create provider immediately to keep call stack short
     const provider = new GoogleAuthProvider();
     
-    try {
-      // Trigger popup as early as possible to avoid blockers
-      const result = await signInWithPopup(auth, provider);
-      
-      // Now that popup is successful, show connecting UI while we sync data
-      setIsConnecting(true);
-      const firebaseUser = result.user;
+    // Trigger popup as the very first action to satisfy browser security requirements
+    signInWithPopup(auth, provider)
+      .then(async (result) => {
+        setIsConnecting(true);
+        const firebaseUser = result.user;
 
-      const userDocRef = doc(firestore, 'users', firebaseUser.uid);
-      const userDoc = await getDoc(userDocRef);
+        const userDocRef = doc(firestore, 'users', firebaseUser.uid);
+        const userDoc = await getDoc(userDocRef);
 
-      if (!userDoc.exists()) {
-        const batch = writeBatch(firestore);
-        batch.set(userDocRef, {
-          displayName: firebaseUser.displayName || 'Operator',
-          email: firebaseUser.email,
-          photoURL: firebaseUser.photoURL || '',
-          createdAt: serverTimestamp(),
-          level: 1,
-          karma: 0,
-          potions: 3,
-        });
+        if (!userDoc.exists()) {
+          const batch = writeBatch(firestore);
+          batch.set(userDocRef, {
+            displayName: firebaseUser.displayName || 'Operator',
+            email: firebaseUser.email,
+            photoURL: firebaseUser.photoURL || '',
+            createdAt: serverTimestamp(),
+            level: 1,
+            karma: 0,
+            potions: 3,
+            inventory: [],
+            stash: [],
+            equipped: {
+              weapon: null,
+              armor: null
+            }
+          });
+          
+          const statsDocRef = doc(firestore, `users/${firebaseUser.uid}/dashboard/stats`);
+          batch.set(statsDocRef, { 
+            totalEarnings: { value: 0, change: 0 },
+            totalViews: { value: 0, change: 0 },
+            totalClicks: { value: 0, change: 0 },
+            avgConversionRate: { value: 0, change: 0 },
+          });
+
+          await batch.commit();
+        }
+      })
+      .catch((error: any) => {
+        setIsConnecting(false);
         
-        const statsDocRef = doc(firestore, `users/${firebaseUser.uid}/dashboard/stats`);
-        batch.set(statsDocRef, { 
-          totalEarnings: { value: 0, change: 0 },
-          totalViews: { value: 0, change: 0 },
-          totalClicks: { value: 0, change: 0 },
-          avgConversionRate: { value: 0, change: 0 },
-        });
-
-        await batch.commit();
-      }
-    } catch (error: any) {
-      setIsConnecting(false);
-      
-      // Ignore user-initiated cancellation
-      if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-        return;
-      }
-      
-      if (error.code === 'auth/popup-blocked') {
+        // Ignore user-initiated cancellation
+        if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+          return;
+        }
+        
+        if (error.code === 'auth/popup-blocked') {
+          toast({
+            title: "Protocol Blocked",
+            description: "Neural interface blocked by browser. Please allow popups for this sector in your settings.",
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        console.error("Link Failure:", error);
         toast({
-          title: "Protocol Blocked",
-          description: "Neural interface blocked by browser. Please allow popups for this sector.",
+          title: "Neural Link Failure",
+          description: error.message || "Failed to establish connection to the Arena.",
           variant: "destructive"
         });
-        return;
-      }
-      
-      console.error("Link Failure:", error);
-      toast({
-        title: "Neural Link Failure",
-        description: error.message || "Failed to establish connection to the Arena.",
-        variant: "destructive"
       });
-    }
   };
 
   return (

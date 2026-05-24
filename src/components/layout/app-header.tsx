@@ -23,71 +23,79 @@ export function AppHeader() {
     setIsClient(true);
   }, []);
 
-  const handleSignIn = async (providerType: 'google' | 'github') => {
+  const handleSignIn = (providerType: 'google' | 'github') => {
     if (!auth || !firestore) return;
     
     const provider = providerType === 'google' ? new GoogleAuthProvider() : new GithubAuthProvider();
     
-    try {
-      // Trigger popup immediately to prevent browser blocking
-      const result = await signInWithPopup(auth, provider);
-      const firebaseUser = result.user;
+    // Trigger popup immediately to satisfy browser security requirements
+    signInWithPopup(auth, provider)
+      .then(async (result) => {
+        const firebaseUser = result.user;
+        setIsSyncing(true);
 
-      setIsSyncing(true);
-      const userDocRef = doc(firestore, 'users', firebaseUser.uid);
-      const userDoc = await getDoc(userDocRef);
+        const userDocRef = doc(firestore, 'users', firebaseUser.uid);
+        const userDoc = await getDoc(userDocRef);
 
-      if (!userDoc.exists()) {
-        const batch = writeBatch(firestore);
+        if (!userDoc.exists()) {
+          const batch = writeBatch(firestore);
+          
+          batch.set(userDocRef, {
+            displayName: firebaseUser.displayName || 'Operator',
+            email: firebaseUser.email,
+            photoURL: firebaseUser.photoURL || '',
+            createdAt: serverTimestamp(),
+            level: 1,
+            karma: 0,
+            potions: 3,
+            inventory: [],
+            stash: [],
+            equipped: {
+              weapon: null,
+              armor: null
+            }
+          });
+
+          const statsDocRef = doc(firestore, `users/${firebaseUser.uid}/dashboard/stats`);
+          batch.set(statsDocRef, { 
+            totalEarnings: { value: 0, change: 0 },
+            totalViews: { value: 0, change: 0 },
+            totalClicks: { value: 0, change: 0 },
+            avgConversionRate: { value: 0, change: 0 },
+          });
+
+          await batch.commit();
+        }
         
-        batch.set(userDocRef, {
-          displayName: firebaseUser.displayName || 'Operator',
-          email: firebaseUser.email,
-          photoURL: firebaseUser.photoURL || '',
-          createdAt: serverTimestamp(),
-          level: 1,
-          karma: 0,
-          potions: 3,
-        });
-
-        const statsDocRef = doc(firestore, `users/${firebaseUser.uid}/dashboard/stats`);
-        batch.set(statsDocRef, { 
-          totalEarnings: { value: 0, change: 0 },
-          totalViews: { value: 0, change: 0 },
-          totalClicks: { value: 0, change: 0 },
-          avgConversionRate: { value: 0, change: 0 },
-        });
-
-        await batch.commit();
-      }
-      
-      toast({
-        title: "Neural Link Established",
-        description: `Welcome to the Arena, ${firebaseUser.displayName || 'Operator'}.`,
-      });
-    } catch (error: any) {
-      if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-        return;
-      }
-      
-      if (error.code === 'auth/popup-blocked') {
         toast({
-          title: "Protocol Blocked",
-          description: "Please allow popups in your browser settings to establish the neural link.",
+          title: "Neural Link Established",
+          description: `Welcome to the Arena, ${firebaseUser.displayName || 'Operator'}.`,
+        });
+      })
+      .catch((error: any) => {
+        if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+          return;
+        }
+        
+        if (error.code === 'auth/popup-blocked') {
+          toast({
+            title: "Protocol Blocked",
+            description: "Please allow popups in your browser settings to establish the neural link.",
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        console.error("Link Failure:", error);
+        toast({
+          title: "Connection Failed",
+          description: error.message || "Establishing neural link failed.",
           variant: "destructive"
         });
-        return;
-      }
-      
-      console.error("Link Failure:", error);
-      toast({
-        title: "Connection Failed",
-        description: error.message || "Establishing neural link failed.",
-        variant: "destructive"
+      })
+      .finally(() => {
+        setIsSyncing(false);
       });
-    } finally {
-      setIsSyncing(false);
-    }
   };
 
   const handleSignOut = async () => {
