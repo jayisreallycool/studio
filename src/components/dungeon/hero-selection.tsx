@@ -16,7 +16,7 @@ const findHint = (id: string) => PlaceHolderImages.find(img => img.id === id)?.i
 
 const HERO_CLASSES = [
   {
-    id: 'Warrior',
+    id: 'Warrior' as const,
     title: 'The Juggernaut',
     description: 'High HP and defensive capabilities. Forged in the iron pits of the Arena.',
     icon: Shield,
@@ -26,7 +26,7 @@ const HERO_CLASSES = [
     stats: { hp: 150, atk: 20 }
   },
   {
-    id: 'Mage',
+    id: 'Mage' as const,
     title: 'The Rift Weaver',
     description: 'Masters of the Arcane. Vulnerable but capable of reality-warping damage.',
     icon: Flame,
@@ -36,7 +36,7 @@ const HERO_CLASSES = [
     stats: { hp: 80, atk: 45 }
   },
   {
-    id: 'Rogue',
+    id: 'Rogue' as const,
     title: 'The Shadow Stalker',
     description: 'Agile and deadly. Critical strikes that bypass even legendary armor.',
     icon: Zap,
@@ -51,7 +51,7 @@ export function HeroSelection({ userUid }: { userUid: string }) {
   const firestore = useFirestore();
   const [isSelecting, setIsSelecting] = useState(false);
 
-  const selectHero = async (heroClass: string) => {
+  const selectHero = async (heroClass: HeroClass) => {
     if (!firestore) return;
     setIsSelecting(true);
     const userRef = doc(firestore, 'users', userUid);
