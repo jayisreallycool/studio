@@ -9,6 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Sword, Zap, Shield, Skull, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+
+const findImage = (id: string) => PlaceHolderImages.find(img => img.id === id)?.imageUrl || '';
+const findHint = (id: string) => PlaceHolderImages.find(img => img.id === id)?.imageHint || '';
 
 const HERO_CLASSES = [
   {
@@ -17,7 +21,8 @@ const HERO_CLASSES = [
     description: 'High HP and defensive capabilities. Forged in the iron pits of the Arena.',
     icon: Shield,
     color: 'text-blue-500',
-    image: 'https://picsum.photos/seed/warrior/600/800',
+    image: findImage('hero-warrior'),
+    imageHint: findHint('hero-warrior'),
     stats: { hp: 150, atk: 20 }
   },
   {
@@ -26,7 +31,8 @@ const HERO_CLASSES = [
     description: 'Masters of the Arcane. Vulnerable but capable of reality-warping damage.',
     icon: Flame,
     color: 'text-purple-500',
-    image: 'https://picsum.photos/seed/mage/600/800',
+    image: findImage('hero-mage'),
+    imageHint: findHint('hero-mage'),
     stats: { hp: 80, atk: 45 }
   },
   {
@@ -35,7 +41,8 @@ const HERO_CLASSES = [
     description: 'Agile and deadly. Critical strikes that bypass even legendary armor.',
     icon: Zap,
     color: 'text-yellow-500',
-    image: 'https://picsum.photos/seed/rogue/600/800',
+    image: findImage('hero-rogue'),
+    imageHint: findHint('hero-rogue'),
     stats: { hp: 110, atk: 30 }
   }
 ];
@@ -74,7 +81,7 @@ export function HeroSelection({ userUid }: { userUid: string }) {
                 alt={hero.title} 
                 fill 
                 className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
-                data-ai-hint="fantasy character"
+                data-ai-hint={hero.imageHint}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
               <div className="absolute bottom-4 left-4 right-4">

@@ -4,44 +4,62 @@
     {
       "id": "operator-prime-avatar",
       "description": "Avatar for Operator Prime",
-      "imageUrl": "https://picsum.photos/seed/88/200/200",
+      "imageUrl": "https://picsum.photos/seed/dark-knight/200/200",
       "imageHint": "dark warrior"
     },
     {
       "id": "sentinel-x-avatar",
       "description": "Avatar for Sentinel X",
-      "imageUrl": "https://picsum.photos/seed/99/200/200",
-      "imageHint": "cybernetic mage"
+      "imageUrl": "https://picsum.photos/seed/cyber-mage/200/200",
+      "imageHint": "cyberpunk mage"
     },
     {
       "id": "rift-walker-avatar",
       "description": "Avatar for Rift Walker",
-      "imageUrl": "https://picsum.photos/seed/77/200/200",
-      "imageHint": "mystic rogue"
+      "imageUrl": "https://picsum.photos/seed/shadow-rogue/200/200",
+      "imageHint": "mystic assassin"
     },
     {
       "id": "demon-king-raid",
       "description": "The Demon King Boss image",
-      "imageUrl": "https://picsum.photos/seed/666/1200/800",
+      "imageUrl": "https://picsum.photos/seed/demon-lord-raid/1200/800",
       "imageHint": "demon monster"
     },
     {
       "id": "artifact-scythe",
       "description": "Void-Touched Reaper Scythe",
-      "imageUrl": "https://picsum.photos/seed/vtr-scythe/800/600",
-      "imageHint": "reaper scythe"
+      "imageUrl": "https://picsum.photos/seed/void-scythe-ink/800/600",
+      "imageHint": "dark scythe"
     },
     {
       "id": "artifact-armor",
       "description": "Chronos Weaver Armor",
-      "imageUrl": "https://picsum.photos/seed/cw-armor/800/600",
+      "imageUrl": "https://picsum.photos/seed/clockwork-plate/800/600",
       "imageHint": "clockwork armor"
     },
     {
       "id": "artifact-infuser",
       "description": "Crystalline Mana Infuser",
-      "imageUrl": "https://picsum.photos/seed/cm-infuser/800/600",
+      "imageUrl": "https://picsum.photos/seed/mana-crystal-art/800/600",
       "imageHint": "magic crystal"
+    },
+    {
+      "id": "hero-warrior",
+      "description": "The Juggernaut Class",
+      "imageUrl": "https://picsum.photos/seed/heavy-warrior/600/800",
+      "imageHint": "armored knight"
+    },
+    {
+      "id": "hero-mage",
+      "description": "The Rift Weaver Class",
+      "imageUrl": "https://picsum.photos/seed/ethereal-mage/600/800",
+      "imageHint": "wizard magic"
+    },
+    {
+      "id": "hero-rogue",
+      "description": "The Shadow Stalker Class",
+      "imageUrl": "https://picsum.photos/seed/stealth-rogue/600/800",
+      "imageHint": "assassin shadow"
     }
   ]
 }

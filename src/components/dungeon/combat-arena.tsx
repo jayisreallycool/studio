@@ -18,6 +18,7 @@ interface CombatArenaProps {
 }
 
 const MONSTER_NAMES = ["Void Golem", "Shadow Stalker", "Rift Wyrm", "Blood Harvester", "Dread Knight"];
+const MONSTER_HINTS = ["golem monster", "shadow creature", "dragon wyrm", "demon hunter", "undead knight"];
 
 export function CombatArena({ profile, userUid }: CombatArenaProps) {
   const firestore = useFirestore();
@@ -34,7 +35,9 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
   // Generate a monster based on player level
   const spawnMonster = () => {
     const level = profile.level;
-    const name = MONSTER_NAMES[Math.floor(Math.random() * MONSTER_NAMES.length)];
+    const nameIndex = Math.floor(Math.random() * MONSTER_NAMES.length);
+    const name = MONSTER_NAMES[nameIndex];
+    const hint = MONSTER_HINTS[nameIndex];
     const hp = 50 + (level * 25);
     const atk = 10 + (level * 5);
     const seed = Math.floor(Math.random() * 1000);
@@ -49,6 +52,9 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
       imageUrl: `https://picsum.photos/seed/${seed}/800/600`,
       description: "A dark entity synthesized from Arena anomalies."
     });
+    // Store hint locally for current combat session
+    (window as any)._currentMonsterHint = hint;
+
     setPlayerHp(maxPlayerHp);
     setCombatLog(prev => [`New Anomaly Detected: ${name}!`, ...prev].slice(0, 5));
   };
@@ -176,7 +182,7 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
                    alt={monster.name} 
                    fill 
                    className="object-cover"
-                   data-ai-hint="fantasy monster"
+                   data-ai-hint={(window as any)._currentMonsterHint || "fantasy monster"}
                  />
                  <div className="absolute inset-0 halftone-bg opacity-10 pointer-events-none" />
                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black p-8">
