@@ -1,4 +1,3 @@
-
 import { Timestamp } from 'firebase/firestore';
 
 export type PostRarity = 'Common' | 'Rare' | 'Epic' | 'Legendary';

@@ -15,15 +15,16 @@ export function SplashScreen() {
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
 
   const handleSignIn = () => {
-    if (!auth || !firestore) return;
-    
+    // 1. Immediately trigger the popup to avoid browser blocking
     const provider = new GoogleAuthProvider();
     
-    // Trigger popup as the very first action to satisfy browser security requirements
     signInWithPopup(auth, provider)
       .then(async (result) => {
+        // 2. Only after popup succeeds, we start the sync process
         setIsConnecting(true);
         const firebaseUser = result.user;
+
+        if (!firestore) return;
 
         const userDocRef = doc(firestore, 'users', firebaseUser.uid);
         const userDoc = await getDoc(userDocRef);

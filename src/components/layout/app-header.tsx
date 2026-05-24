@@ -24,15 +24,15 @@ export function AppHeader() {
   }, []);
 
   const handleSignIn = (providerType: 'google' | 'github') => {
-    if (!auth || !firestore) return;
-    
+    // 1. Trigger popup as the absolute first action to satisfy browser security
     const provider = providerType === 'google' ? new GoogleAuthProvider() : new GithubAuthProvider();
     
-    // Trigger popup immediately to satisfy browser security requirements
     signInWithPopup(auth, provider)
       .then(async (result) => {
         const firebaseUser = result.user;
         setIsSyncing(true);
+
+        if (!firestore) return;
 
         const userDocRef = doc(firestore, 'users', firebaseUser.uid);
         const userDoc = await getDoc(userDocRef);
