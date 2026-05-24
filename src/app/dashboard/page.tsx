@@ -68,14 +68,14 @@ export default function DashboardPage() {
   if (!user) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-80px)]">
-        <Card className="w-full max-w-md text-center border-dashed border-2 bg-black/40 border-white/10">
+        <Card className="comic-card w-full max-w-md text-center bg-black/40">
           <CardHeader>
-            <CardTitle className="flex items-center justify-center gap-3 uppercase italic font-black text-2xl text-primary">
+            <CardTitle className="flex items-center justify-center gap-3 uppercase italic font-black text-2xl text-primary comic-text-stroke">
               <Shield className="h-8 w-8" /> Connection Required
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <CardDescription className="text-muted-foreground font-bold uppercase tracking-widest text-xs">
+            <CardDescription className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">
               Identify yourself to access your encrypted Command Center data.
             </CardDescription>
           </CardContent>
@@ -88,19 +88,19 @@ export default function DashboardPage() {
     <div className="max-w-6xl mx-auto space-y-10 pb-20">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase italic leading-none">Command Center</h1>
-          <p className="text-primary text-[10px] uppercase font-black tracking-[0.3em] mt-2">Active Operator: {user.displayName}</p>
+          <h1 className="text-5xl font-black tracking-tighter text-foreground uppercase italic leading-none comic-text-stroke">Command Center</h1>
+          <p className="text-primary text-[10px] uppercase font-black tracking-[0.3em] mt-3">Active Operator: {user.displayName}</p>
         </div>
-        <Card className="p-5 flex items-center gap-6 bg-accent/5 border-accent/20 backdrop-blur-md shadow-2xl shadow-accent/10 min-w-[300px]">
-          <div className="bg-accent/20 p-3 rounded-xl border border-accent/30 shadow-inner">
-            <Trophy className="text-accent h-6 w-6" />
+        <Card className="p-6 flex items-center gap-6 bg-black border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] min-w-[320px]">
+          <div className="bg-primary/20 p-4 border-2 border-primary/40 shadow-inner">
+            <Trophy className="text-primary h-8 w-8" />
           </div>
-          <div className="space-y-2 flex-grow">
-            <div className="flex justify-between text-[11px] font-black uppercase tracking-[0.2em] text-accent">
+          <div className="space-y-3 flex-grow">
+            <div className="flex justify-between text-[11px] font-black uppercase tracking-[0.2em] text-primary">
               <span>Level {profile?.level || 1}</span>
               <span>{profile?.karma || 0} / 500 XP</span>
             </div>
-            <Progress value={((profile?.karma || 0) % 500) / 5} className="h-2 bg-black/40" />
+            <Progress value={((profile?.karma || 0) % 500) / 5} className="h-3 bg-zinc-900 border-2 border-black" />
           </div>
         </Card>
       </div>
@@ -113,19 +113,19 @@ export default function DashboardPage() {
           icon={Coins}
         />
         <AnalyticsCard
-          title="Battle Views"
+          title="Arena Views"
           value={displayStats.totalViews.value.toLocaleString()}
           change={displayStats.totalViews.change}
           icon={Eye}
         />
         <AnalyticsCard
-          title="Action Clicks"
+          title="Battle Actions"
           value={displayStats.totalClicks.value.toLocaleString()}
           change={displayStats.totalClicks.change}
           icon={Zap}
         />
         <AnalyticsCard
-          title="Loot Yield"
+          title="Raid Success"
           value={`${displayStats.avgConversionRate.value}%`}
           change={displayStats.avgConversionRate.change}
           icon={Sword}
@@ -135,31 +135,31 @@ export default function DashboardPage() {
       <div className="grid gap-10 lg:grid-cols-3">
         <div className="lg:col-span-2">
            <Tabs defaultValue="overview" className="space-y-6">
-             <TabsList className="bg-black/40 border border-white/5">
-               <TabsTrigger value="overview" className="font-black uppercase text-[10px]">Overview</TabsTrigger>
-               <TabsTrigger value="vault" className="font-black uppercase text-[10px]">The Vault</TabsTrigger>
+             <TabsList className="bg-black border-4 border-black p-1">
+               <TabsTrigger value="overview" className="font-black uppercase text-[10px] h-full data-[state=active]:bg-primary data-[state=active]:text-black">Progression</TabsTrigger>
+               <TabsTrigger value="vault" className="font-black uppercase text-[10px] h-full data-[state=active]:bg-primary data-[state=active]:text-black">The Vault</TabsTrigger>
              </TabsList>
              <TabsContent value="overview">
                <EarningsChart data={displayEarnings} />
              </TabsContent>
              <TabsContent value="vault">
-                <Card className="bg-black/40 border-white/5">
+                <Card className="comic-card bg-black/40">
                   <CardHeader>
                     <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
                       <Box className="h-4 w-4 text-primary" /> Operator Trophies
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-6">
                     {profile?.trophies?.length ? (
                       profile.trophies.map((trophy, i) => (
-                        <div key={i} className="flex flex-col items-center gap-2 p-4 rounded-xl bg-accent/5 border border-accent/20">
-                          <Medal className="h-8 w-8 text-yellow-500 animate-pulse" />
-                          <span className="text-[9px] font-black uppercase tracking-tighter text-center">{trophy}</span>
+                        <div key={i} className="flex flex-col items-center gap-3 p-6 bg-black border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-2px] transition-transform">
+                          <Medal className="h-10 w-10 text-yellow-500 animate-pulse" />
+                          <span className="text-[10px] font-black uppercase tracking-tighter text-center">{trophy}</span>
                         </div>
                       ))
                     ) : (
-                      <div className="col-span-full py-10 text-center text-muted-foreground/60">
-                        <p className="text-[10px] font-black uppercase tracking-[0.3em]">No Trophies Earned</p>
+                      <div className="col-span-full py-16 text-center text-muted-foreground/60">
+                        <p className="text-[10px] font-black uppercase tracking-[0.4em] italic">No Trophies Detected in Vault</p>
                       </div>
                     )}
                   </CardContent>
@@ -168,26 +168,26 @@ export default function DashboardPage() {
            </Tabs>
         </div>
         <div className="lg:col-span-1 space-y-10">
-           <Card className="bg-gradient-to-br from-card to-accent/10 border-white/5 shadow-2xl">
-             <CardHeader>
-               <CardTitle className="text-xs font-black uppercase tracking-[0.3em] flex items-center gap-2 text-accent">
-                 <Star className="h-4 w-4 fill-accent animate-pulse" /> Rare Inventory
+           <Card className="comic-card bg-zinc-900 overflow-hidden group">
+             <CardHeader className="bg-black border-b-4 border-black">
+               <CardTitle className="text-xs font-black uppercase tracking-[0.3em] flex items-center gap-2 text-primary">
+                 <Star className="h-4 w-4 fill-primary animate-pulse" /> Rare Inventory
                </CardTitle>
              </CardHeader>
-             <CardContent className="space-y-6">
+             <CardContent className="p-6">
                {profile?.inventory?.length ? (
-                 <div className="grid grid-cols-3 gap-3">
+                 <div className="grid grid-cols-3 gap-4">
                    {profile.inventory.map((item, i) => (
-                     <div key={i} className="aspect-square bg-black/40 rounded-xl flex items-center justify-center border border-white/10 hover:border-accent/50 transition-colors cursor-help group relative">
-                        <span className="text-3xl group-hover:scale-125 transition-transform">💎</span>
-                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-ping" />
+                     <div key={i} className="aspect-square bg-black border-4 border-black flex items-center justify-center hover:border-primary transition-colors cursor-help group relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                        <span className="text-4xl group-hover:scale-110 transition-transform">💎</span>
+                        <div className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full animate-ping" />
                      </div>
                    ))}
                  </div>
                ) : (
-                 <div className="text-center py-10 space-y-3">
-                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest italic">Inventory Empty</p>
-                    <p className="text-[9px] text-muted-foreground/60 font-bold">Forge high-rarity artifacts to claim rare drops.</p>
+                 <div className="text-center py-12 space-y-4">
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest italic leading-tight">Your inventory is empty, Operator.</p>
+                    <p className="text-[9px] text-primary font-bold uppercase tracking-tighter italic">Defeat World Bosses to claim rare loot.</p>
                  </div>
                )}
              </CardContent>

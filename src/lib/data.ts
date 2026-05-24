@@ -9,98 +9,99 @@ export const posts: Post[] = [
   {
     id: '1',
     uid: 'user-1',
-    title: 'Unlocking Passive Income: A Beginner’s Guide to Affiliate Marketing',
-    content: "Discover the foundational strategies of affiliate marketing. This guide covers everything from choosing the right niche to finding profitable affiliate programs. We'll walk you through setting up your first campaign and tracking its success.",
+    title: 'Void-Touched Reaper Scythe',
+    content: "A weapon forged in the depths of the Shadow Realm. It hums with a malevolent energy that drains the lifeforce of those it strikes. This artifact was recovered from the first Breach Event during the Great Incursion.",
     author: 'Elena Voss',
     avatarUrl: findImage('user-avatar-1'),
     imageUrl: findImage('post-image-1'),
     imageHint: findImageHint('post-image-1'),
-    upvotes: 125,
+    upvotes: 450,
     downvotes: 12,
-    comments: 45,
-    tags: ['Affiliate Marketing', 'Beginners', 'Passive Income'],
+    comments: 89,
+    tags: ['Legendary', 'Shadow', 'Melee'],
     createdAt: '3 hours ago',
+    rarity: 'Legendary',
   },
   {
     id: '2',
     uid: 'user-2',
-    title: 'Top 10 SEO Tools That Will Skyrocket Your Rankings in 2024',
-    content: "SEO is constantly evolving, and so are the tools. In this post, we review the top 10 SEO tools that can give you a competitive edge. From keyword research to backlink analysis, these tools are game-changers.",
+    title: 'Chronos Weaver Armor',
+    content: "Exquisite plating that allows the wearer to perceive moments before they occur. Found within the temporal rifts of the Clockwork Spire. It is said the gears within never stop turning, even when the wearer is still.",
     author: 'Marcus Chen',
     avatarUrl: findImage('user-avatar-2'),
     imageUrl: findImage('post-image-2'),
     imageHint: findImageHint('post-image-2'),
-    upvotes: 230,
+    upvotes: 320,
     downvotes: 5,
-    comments: 88,
-    tags: ['SEO', 'Tools', 'Ranking'],
+    comments: 42,
+    tags: ['Epic', 'Time', 'Plate'],
     createdAt: '1 day ago',
+    rarity: 'Epic',
   },
   {
     id: '3',
     uid: 'user-3',
-    title: 'The Art of Conversion: How to Turn Clicks into Cash',
-    content: "Getting clicks is only half the battle. This article dives deep into conversion rate optimization (CRO) techniques for affiliate marketers. Learn about persuasive copywriting, effective call-to-actions, and A/B testing your landing pages.",
+    title: 'Crystalline Mana Infuser',
+    content: "A powerful focus for arcane energy. It converts raw ambient magic into concentrated bolts of pure crystalline power. Operators often use these to stabilize unstable rift portals during Omega Raids.",
     author: 'Sophie Dubois',
     avatarUrl: findImage('user-avatar-3'),
     imageUrl: findImage('post-image-3'),
     imageHint: findImageHint('post-image-3'),
-    upvotes: 98,
+    upvotes: 215,
     downvotes: 8,
-    comments: 32,
-    tags: ['CRO', 'Conversion', 'Sales'],
+    comments: 15,
+    tags: ['Rare', 'Arcane', 'Artifact'],
     createdAt: '2 days ago',
+    rarity: 'Rare',
   },
 ];
 
 export const dashboardStats = {
-  totalEarnings: { value: 0, change: 0 },
-  totalViews: { value: 0, change: 0 },
-  totalClicks: { value: 0, change: 0 },
-  avgConversionRate: { value: 0, change: 0 },
+  totalEarnings: { value: 12500, change: 12 },
+  totalViews: { value: 45000, change: 8 },
+  totalClicks: { value: 2300, change: 15 },
+  avgConversionRate: { value: 5.2, change: 2 },
 };
 
-export const earningsData: { month: string; earnings: number }[] = [];
-
-export const recentPostsData: {
-    id: string;
-    title: string;
-    views: number;
-    clicks: number;
-    conversions: number;
-    earnings: number;
-  }[] = [];
+export const earningsData: { month: string; earnings: number }[] = [
+  { month: 'Aug', earnings: 1200 },
+  { month: 'Sep', earnings: 1800 },
+  { month: 'Oct', earnings: 1400 },
+  { month: 'Nov', earnings: 2200 },
+  { month: 'Dec', earnings: 1900 },
+  { month: 'Jan', earnings: 2500 },
+];
 
 export const challenges: Challenge[] = [
   {
     id: 'challenge-1',
-    title: 'First Post',
-    description: 'Create your first post and share your knowledge with the community.',
-    reward: '100 Points',
+    title: 'First Forge',
+    description: 'Forge your first artifact and chronicle its power in the Arena.',
+    reward: '100 XP',
     progress: 0,
     goal: 100,
   },
   {
     id: 'challenge-2',
-    title: 'SEO Starter',
-    description: 'Write a post optimized for a specific keyword and include at least 3 relevant tags.',
-    reward: '150 Points',
+    title: 'Elite Appraiser',
+    description: 'Achieve a Power Level score of over 85% on a single artifact.',
+    reward: '250 XP',
     progress: 50,
     goal: 100,
   },
   {
     id: 'challenge-3',
-    title: 'Engagement Expert',
-    description: 'Get 10 upvotes on one of your posts.',
-    reward: '200 Points',
+    title: 'Battle-Hardened',
+    description: 'Deal a total of 5,000 cumulative damage to World Bosses.',
+    reward: '500 XP',
     progress: 20,
     goal: 100,
   },
-    {
+  {
     id: 'challenge-4',
-    title: 'Affiliate Apprentice',
-    description: 'Include an affiliate link in one of your posts and get your first click.',
-    reward: '250 Points',
+    title: 'Vault Seeker',
+    description: 'Claim your first rare loot drop from a successful boss raid.',
+    reward: 'Platinum Badge',
     progress: 0,
     goal: 100,
   },
