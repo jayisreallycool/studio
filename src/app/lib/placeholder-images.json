@@ -47,7 +47,7 @@
       "id": "hero-warrior",
       "description": "The Juggernaut Class",
       "imageUrl": "https://picsum.photos/seed/juggernaut-behemoth/600/800",
-      "imageHint": "stone titan"
+      "imageHint": "armored knight"
     },
     {
       "id": "hero-mage",
@@ -60,6 +60,36 @@
       "description": "The Shadow Stalker Class",
       "imageUrl": "https://picsum.photos/seed/stealth-rogue/600/800",
       "imageHint": "assassin shadow"
+    },
+    {
+      "id": "monster-golem",
+      "description": "A massive stone golem",
+      "imageUrl": "https://picsum.photos/seed/stone-golem-99/800/600",
+      "imageHint": "stone monster"
+    },
+    {
+      "id": "monster-wyrm",
+      "description": "A fiery rift dragon",
+      "imageUrl": "https://picsum.photos/seed/fire-dragon-88/800/600",
+      "imageHint": "red dragon"
+    },
+    {
+      "id": "monster-stalker",
+      "description": "A shadowy creature of the void",
+      "imageUrl": "https://picsum.photos/seed/void-beast-77/800/600",
+      "imageHint": "shadow monster"
+    },
+    {
+      "id": "monster-knight",
+      "description": "An undead knight of the arena",
+      "imageUrl": "https://picsum.photos/seed/undead-warrior-66/800/600",
+      "imageHint": "skeleton warrior"
+    },
+    {
+      "id": "monster-beholder",
+      "description": "A many-eyed cosmic horror",
+      "imageUrl": "https://picsum.photos/seed/beholder-eye-55/800/600",
+      "imageHint": "beholder monster"
     }
   ]
 }

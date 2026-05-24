@@ -11,14 +11,20 @@ import { Swords, Heart, Skull, Zap, Shield, Flame, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 interface CombatArenaProps {
   profile: UserProfile;
   userUid: string;
 }
 
-const MONSTER_NAMES = ["Void Golem", "Shadow Stalker", "Rift Wyrm", "Blood Harvester", "Dread Knight"];
-const MONSTER_HINTS = ["golem monster", "shadow creature", "dragon wyrm", "demon hunter", "undead knight"];
+const MONSTER_TEMPLATES = [
+  { id: 'monster-golem', name: 'Void Golem', hint: 'stone monster', desc: 'A dark entity synthesized from Arena anomalies.' },
+  { id: 'monster-wyrm', name: 'Rift Wyrm', hint: 'red dragon', desc: 'A fiery serpentine terror from the depths of the rift.' },
+  { id: 'monster-stalker', name: 'Shadow Stalker', hint: 'shadow monster', desc: 'A formless horror that dwells in the lightless corners.' },
+  { id: 'monster-knight', name: 'Dread Knight', hint: 'skeleton warrior', desc: 'The reanimated remains of a failed Operator.' },
+  { id: 'monster-beholder', name: 'Chaos Gazer', hint: 'beholder monster', desc: 'An ancient watcher that sees through your neural defenses.' }
+];
 
 export function CombatArena({ profile, userUid }: CombatArenaProps) {
   const firestore = useFirestore();
@@ -33,29 +39,30 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
   const maxPlayerHp = 100 + (profile.level * 20);
 
   const spawnMonster = () => {
-    const level = profile.level;
-    const nameIndex = Math.floor(Math.random() * MONSTER_NAMES.length);
-    const name = MONSTER_NAMES[nameIndex];
-    const hint = MONSTER_HINTS[nameIndex];
+    const level = Math.floor(profile.level);
+    const template = MONSTER_TEMPLATES[Math.floor(Math.random() * MONSTER_TEMPLATES.length)];
+    
+    // Find the image URL from our placeholder registry
+    const registeredImage = PlaceHolderImages.find(img => img.id === template.id);
+    const imageUrl = registeredImage?.imageUrl || `https://picsum.photos/seed/${template.id}-${Date.now()}/800/600`;
+
     const hp = 50 + (level * 25);
     const atk = 10 + (level * 5);
-    const seed = Math.floor(Math.random() * 1000);
 
     setMonster({
       id: `monster-${Date.now()}`,
-      name: `${name} LVL ${level}`,
+      name: `${template.name} LVL ${level}`,
       hp,
       maxHp: hp,
       atk,
       level,
-      imageUrl: `https://picsum.photos/seed/${seed}/800/600`,
-      description: "A dark entity synthesized from Arena anomalies."
+      imageUrl,
+      imageHint: template.hint,
+      description: template.desc
     });
-    // Store hint locally for current combat session
-    (window as any)._currentMonsterHint = hint;
 
     setPlayerHp(maxPlayerHp);
-    setCombatLog(prev => [`New Anomaly Detected: ${name}!`, ...prev].slice(0, 5));
+    setCombatLog(prev => [`New Anomaly Detected: ${template.name}!`, ...prev].slice(0, 5));
   };
 
   useEffect(() => {
@@ -143,7 +150,7 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
           <CardHeader className="bg-black border-b-4 border-black">
             <CardTitle className="text-[10px] font-black uppercase tracking-[0.3em] text-primary flex items-center gap-2">
               <Target className="w-4 h-4" /> Tactical Data
-            </CardTitle>
+            </Target>
           </CardHeader>
           <CardContent className="p-6 space-y-2">
              {combatLog.map((log, i) => (
@@ -179,7 +186,7 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
                    alt={monster.name} 
                    fill 
                    className="object-cover"
-                   data-ai-hint={(window as any)._currentMonsterHint || "fantasy monster"}
+                   data-ai-hint={monster.imageHint}
                  />
                  <div className="absolute inset-0 halftone-bg opacity-10 pointer-events-none" />
                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black p-8">

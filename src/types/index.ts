@@ -55,6 +55,7 @@ export type Monster = {
   atk: number;
   level: number;
   imageUrl: string;
+  imageHint: string;
   description: string;
 };
 
