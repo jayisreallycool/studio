@@ -1,15 +1,14 @@
-
 'use client';
 import { useEffect, useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Bell, LogIn, LogOut, PanelLeft, User as UserIcon, Github } from "lucide-react";
+import { Bell, LogIn, LogOut, PanelLeft, User as UserIcon, Github, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth, useUser, useFirestore } from "@/firebase";
 import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
 
 export function AppHeader() {
@@ -18,6 +17,7 @@ export function AppHeader() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -31,25 +31,26 @@ export function AppHeader() {
     try {
       // Trigger popup immediately to prevent browser blocking
       const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+      const firebaseUser = result.user;
 
-      const userDocRef = doc(firestore, 'users', user.uid);
+      setIsSyncing(true);
+      const userDocRef = doc(firestore, 'users', firebaseUser.uid);
       const userDoc = await getDoc(userDocRef);
 
       if (!userDoc.exists()) {
         const batch = writeBatch(firestore);
         
         batch.set(userDocRef, {
-          displayName: user.displayName || 'Operator',
-          email: user.email,
-          photoURL: user.photoURL,
+          displayName: firebaseUser.displayName || 'Operator',
+          email: firebaseUser.email,
+          photoURL: firebaseUser.photoURL || '',
           createdAt: serverTimestamp(),
           level: 1,
           karma: 0,
           potions: 3,
         });
 
-        const statsDocRef = doc(firestore, `users/${user.uid}/dashboard/stats`);
+        const statsDocRef = doc(firestore, `users/${firebaseUser.uid}/dashboard/stats`);
         batch.set(statsDocRef, { 
           totalEarnings: { value: 0, change: 0 },
           totalViews: { value: 0, change: 0 },
@@ -62,10 +63,12 @@ export function AppHeader() {
       
       toast({
         title: "Neural Link Established",
-        description: `Welcome to the Arena, ${user.displayName}.`,
+        description: `Welcome to the Arena, ${firebaseUser.displayName || 'Operator'}.`,
       });
     } catch (error: any) {
-      if (error.code === 'auth/popup-closed-by-user') return;
+      if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+        return;
+      }
       
       if (error.code === 'auth/popup-blocked') {
         toast({
@@ -82,6 +85,8 @@ export function AppHeader() {
         description: error.message || "Establishing neural link failed.",
         variant: "destructive"
       });
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -115,6 +120,12 @@ export function AppHeader() {
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur-sm px-4 md:px-6">
       <SidebarTrigger className="md:hidden" />
       <div className="flex-1"></div>
+      {isSyncing && (
+        <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 animate-pulse">
+          <Loader2 className="h-3 w-3 animate-spin text-primary" />
+          <span className="text-[10px] font-black uppercase text-primary tracking-widest">Syncing Protocol...</span>
+        </div>
+      )}
       <Button variant="ghost" size="icon" className="rounded-full">
         <Bell className="h-5 w-5" />
         <span className="sr-only">Notifications</span>

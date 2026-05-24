@@ -1,4 +1,3 @@
-
 'use client';
 import { Button } from '@/components/ui/button';
 import { Skull, Zap, Shield, Loader2, Link as LinkIcon } from 'lucide-react';
@@ -18,32 +17,33 @@ export function SplashScreen() {
   const handleSignIn = async () => {
     if (!auth || !firestore) return;
     
+    // Create provider immediately to keep call stack short
     const provider = new GoogleAuthProvider();
     
     try {
-      // We don't set connecting state BEFORE the popup to ensure immediate user gesture context
+      // Trigger popup as early as possible to avoid blockers
       const result = await signInWithPopup(auth, provider);
       
       // Now that popup is successful, show connecting UI while we sync data
       setIsConnecting(true);
-      const user = result.user;
+      const firebaseUser = result.user;
 
-      const userDocRef = doc(firestore, 'users', user.uid);
+      const userDocRef = doc(firestore, 'users', firebaseUser.uid);
       const userDoc = await getDoc(userDocRef);
 
       if (!userDoc.exists()) {
         const batch = writeBatch(firestore);
         batch.set(userDocRef, {
-          displayName: user.displayName || 'Operator',
-          email: user.email,
-          photoURL: user.photoURL,
+          displayName: firebaseUser.displayName || 'Operator',
+          email: firebaseUser.email,
+          photoURL: firebaseUser.photoURL || '',
           createdAt: serverTimestamp(),
           level: 1,
           karma: 0,
           potions: 3,
         });
         
-        const statsDocRef = doc(firestore, `users/${user.uid}/dashboard/stats`);
+        const statsDocRef = doc(firestore, `users/${firebaseUser.uid}/dashboard/stats`);
         batch.set(statsDocRef, { 
           totalEarnings: { value: 0, change: 0 },
           totalViews: { value: 0, change: 0 },
@@ -56,7 +56,10 @@ export function SplashScreen() {
     } catch (error: any) {
       setIsConnecting(false);
       
-      if (error.code === 'auth/popup-closed-by-user') return;
+      // Ignore user-initiated cancellation
+      if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+        return;
+      }
       
       if (error.code === 'auth/popup-blocked') {
         toast({
