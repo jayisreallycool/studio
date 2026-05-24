@@ -9,6 +9,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { Trophy, Users, Zap, Swords, Flame, Skull, ShieldCheck, Loader2 } from 'lucide-react';
 import { HeroSelection } from '@/components/dungeon/hero-selection';
+import { SplashScreen } from '@/components/layout/splash-screen';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -30,7 +31,6 @@ export default function Home() {
 
   const eventsQuery = useMemo(() => {
     if (!firestore) return null;
-    // Show active raids OR the upcoming monthly Demon King raid
     return query(
       collection(firestore, 'worldEvents'), 
       where('status', 'in', ['active', 'upcoming']),
@@ -39,19 +39,28 @@ export default function Home() {
   }, [firestore]);
   const { data: worldEvents, loading: eventsLoading } = useCollection<WorldEvent>(eventsQuery);
 
-  if (userLoading || profileLoading) {
+  if (userLoading || (user && profileLoading)) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-100px)]">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      <div className="fixed inset-0 flex items-center justify-center bg-black">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 animate-spin text-primary" />
+          <p className="text-[10px] font-black uppercase text-primary tracking-widest italic animate-pulse">Synchronizing Neural Link...</p>
+        </div>
       </div>
     );
   }
 
-  // GAME START: If user is logged in but has no class, force Hero Selection
+  // STAGE 1: Splash Screen (Not logged in)
+  if (!user) {
+    return <SplashScreen />;
+  }
+
+  // STAGE 2: Hero Selection (Logged in, no class)
   if (user && !profile?.heroClass) {
     return <HeroSelection userUid={user.uid} />;
   }
 
+  // STAGE 3: The Arena (Main Game)
   return (
     <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8 md:gap-12 px-4 md:px-0">
       <div className="lg:col-span-3 space-y-8 md:space-y-10">
@@ -96,14 +105,12 @@ export default function Home() {
       </div>
 
       <div className="lg:col-span-1 space-y-6 md:space-y-8">
-        {!user && (
-          <Card className="comic-card bg-primary border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-            <CardHeader>
-              <CardTitle className="text-sm font-black uppercase text-black tracking-widest italic">Neural Link Offline</CardTitle>
-              <CardDescription className="text-black/80 font-bold uppercase text-[10px]">Sign in to select your protocol and climb the ranks.</CardDescription>
-            </CardHeader>
-          </Card>
-        )}
+        <Card className="comic-card bg-primary border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <CardHeader>
+            <CardTitle className="text-sm font-black uppercase text-black tracking-widest italic">Neural Link Active</CardTitle>
+            <CardDescription className="text-black/80 font-bold uppercase text-[10px]">Welcome back, Operator {user.displayName}.</CardDescription>
+          </CardHeader>
+        </Card>
         
         <Card className="comic-card bg-zinc-900 sticky top-24">
           <CardHeader className="border-b-4 border-black bg-black">
