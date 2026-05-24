@@ -7,7 +7,7 @@ import { useFirestore } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Swords, Shield, Target, Loader2, Skull } from 'lucide-react';
+import { Swords, Shield, Target, Loader2, Skull, FlaskConical, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -30,7 +30,11 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
   const [isMonsterAttacking, setIsMonsterAttacking] = useState(false);
   const [combatLog, setCombatLog] = useState<string[]>(["Protocol Synchronized. Entry Detected."]);
 
-  const maxPlayerHp = useMemo(() => 100 + (profile.level * 20), [profile.level]);
+  // Derived stats from equipment
+  const bonusHp = profile.equipped?.armor?.statBoost || 0;
+  const bonusAtk = profile.equipped?.weapon?.statBoost || 0;
+  const maxPlayerHp = useMemo(() => 100 + (profile.level * 20) + bonusHp, [profile.level, bonusHp]);
+  const playerBaseAtk = useMemo(() => 15 + (profile.level * 10) + bonusAtk, [profile.level, bonusAtk]);
 
   useEffect(() => {
     if (playerHp === null) {
@@ -41,9 +45,7 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
   const spawnMonster = () => {
     const level = Math.floor(profile.level) || 1;
     const newMonster = generateMonster(level);
-    
     setMonster(newMonster);
-    setPlayerHp(maxPlayerHp);
     setCombatLog(prev => [`New Anomaly Detected: ${newMonster.name}!`, ...prev].slice(0, 5));
   };
 
@@ -55,9 +57,8 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
     if (!monster || isAttacking || isMonsterAttacking || playerHp === null) return;
 
     setIsAttacking(true);
-    const playerAtk = 15 + (profile.level * 10);
     const crit = Math.random() > 0.85;
-    const damage = crit ? Math.floor(playerAtk * 2) : Math.floor(playerAtk);
+    const damage = crit ? Math.floor(playerBaseAtk * 2) : Math.floor(playerBaseAtk);
 
     const newMonsterHp = Math.max(0, monster.hp - damage);
     setMonster(prev => prev ? { ...prev, hp: newMonsterHp } : null);
@@ -75,7 +76,7 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
   const monsterTurn = () => {
     if (!monster || playerHp === null) return;
     setIsMonsterAttacking(true);
-    const damage = Math.floor(Math.random() * monster.atk) + 5;
+    const damage = Math.max(5, Math.floor(Math.random() * monster.atk));
     
     const newPlayerHp = Math.max(0, playerHp - damage);
     setPlayerHp(newPlayerHp);
@@ -88,22 +89,44 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
     setTimeout(() => setIsMonsterAttacking(false), 300);
   };
 
+  const handleUsePotion = () => {
+    if (!profile.potions || profile.potions <= 0 || playerHp === null || playerHp >= maxPlayerHp) {
+      toast({ title: "Action Blocked", description: "No potions or full HP.", variant: "destructive" });
+      return;
+    }
+
+    const healAmount = 50;
+    const newHp = Math.min(maxPlayerHp, playerHp + healAmount);
+    setPlayerHp(newHp);
+    setCombatLog(prev => ["Consumed Neural Patch. Stability restored.", ...prev].slice(0, 5));
+
+    if (firestore) {
+      const userRef = doc(firestore, 'users', userUid);
+      updateDoc(userRef, { potions: increment(-1) });
+    }
+  };
+
   const handleVictory = () => {
     if (!firestore) return;
     
     const loot = generateLoot(profile.level);
     toast({ 
       title: "ANOMALY PURGED", 
-      description: `You recovered ${loot.name}! +50 XP gained.` 
+      description: `Recovered: ${loot.name}! +50 XP.` 
     });
     
     const userRef = doc(firestore, 'users', userUid);
-    const updates = {
+    const updates: any = {
       karma: increment(50),
       level: increment(0.1),
       totalDamageDealt: increment(monster?.maxHp || 0),
-      inventory: arrayUnion(`${loot.name} (${loot.rarity})`)
     };
+
+    if (loot.type === 'Potion') {
+      updates.potions = increment(1);
+    } else {
+      updates.inventory = arrayUnion(loot);
+    }
 
     updateDoc(userRef, updates).catch(async () => {
       const permissionError = new FirestorePermissionError({
@@ -118,9 +141,12 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
   };
 
   const handleDefeat = () => {
-    toast({ variant: "destructive", title: "PROTOCOL FAILED", description: "Your stability reached zero. Neural Link re-initializing..." });
+    toast({ variant: "destructive", title: "PROTOCOL FAILED", description: "Stability reached zero. Re-initializing..." });
     setCombatLog(prev => ["Ejection Protocol Initiated.", ...prev].slice(0, 5));
-    setTimeout(() => spawnMonster(), 2000);
+    setTimeout(() => {
+        setPlayerHp(maxPlayerHp);
+        spawnMonster();
+    }, 2000);
   };
 
   if (playerHp === null) {
@@ -146,9 +172,16 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
                 <span>{playerHp} / {maxPlayerHp}</span>
              </div>
              <Progress value={(playerHp / maxPlayerHp) * 100} className="h-6 bg-zinc-900 border-2 border-black" />
-             <div className="p-4 bg-black border-2 border-zinc-800 text-center">
-                <span className="text-[9px] font-black uppercase text-zinc-500 block">Class Protocol</span>
-                <span className="text-sm font-black italic uppercase text-primary">{profile.heroClass}</span>
+             
+             <div className="grid grid-cols-1 gap-2">
+                <div className="p-3 bg-black border-2 border-zinc-800 flex justify-between items-center">
+                    <span className="text-[9px] font-black uppercase text-zinc-500">Output</span>
+                    <span className="text-xs font-black text-red-500">{playerBaseAtk} ATK</span>
+                </div>
+                <div className="p-3 bg-black border-2 border-zinc-800 flex justify-between items-center">
+                    <span className="text-[9px] font-black uppercase text-zinc-500">Neural Patches</span>
+                    <span className="text-xs font-black text-primary">{profile.potions || 0}</span>
+                </div>
              </div>
           </CardContent>
         </Card>
@@ -218,10 +251,12 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
                 <Swords className="w-6 h-6 md:w-10 md:h-10 mr-2 md:mr-4" /> STRIKE
               </Button>
               <Button 
+                onClick={handleUsePotion}
+                disabled={!profile.potions || profile.potions <= 0}
                 variant="outline"
-                className="h-16 md:h-24 text-2xl md:text-4xl font-black italic uppercase tracking-tighter comic-button bg-zinc-950 border-4"
+                className="h-16 md:h-24 text-2xl md:text-4xl font-black italic uppercase tracking-tighter comic-button bg-zinc-950 border-4 border-primary/40 text-primary"
               >
-                <Shield className="w-6 h-6 md:w-10 md:h-10 mr-2 md:mr-4" /> BRACE
+                <FlaskConical className="w-6 h-6 md:w-10 md:h-10 mr-2 md:mr-4" /> PATCH
               </Button>
            </div>
         </div>

@@ -1,5 +1,5 @@
 
-import { Monster, LootItem, PostRarity } from '@/types';
+import { Monster, LootItem, PostRarity, ItemType } from '@/types';
 
 const PREFIXES = [
   'Void-Touched', 'Corrupted', 'Infernal', 'Glacial', 'Ancient', 'Mechanical',
@@ -27,7 +27,8 @@ const SUFFIXES = [
 
 const LOOT_NAMES = [
   'Void Fragment', 'Aether Blade', 'Shadow Core', 'Chrono Gear', 'Mana Crystal',
-  'Titan Plate', 'Infernal Ember', 'Glacial Shard', 'Ancient Tome', 'Blighted Vine'
+  'Titan Plate', 'Infernal Ember', 'Glacial Shard', 'Ancient Tome', 'Blighted Vine',
+  'Stabilization Fluid', 'Neural Patch'
 ];
 
 export function generateMonster(level: number): Monster {
@@ -64,17 +65,35 @@ export function generateMonster(level: number): Monster {
 }
 
 export function generateLoot(level: number): LootItem {
-  const nameBase = LOOT_NAMES[Math.floor(Math.random() * LOOT_NAMES.length)];
+  const isPotion = Math.random() > 0.8;
   const rarities: PostRarity[] = ['Common', 'Rare', 'Epic', 'Legendary'];
   const rarityIndex = Math.min(3, Math.floor(Math.random() * (level / 2)));
   const rarity = rarities[rarityIndex];
+
+  if (isPotion) {
+    return {
+      id: `loot-${Date.now()}`,
+      name: 'Healing Potion',
+      type: 'Potion',
+      rarity: 'Common',
+      imageUrl: 'https://picsum.photos/seed/potion/200/200',
+      statBoost: 50 // HP Heal amount
+    };
+  }
+
+  const types: ItemType[] = ['Weapon', 'Armor', 'Material', 'Relic'];
+  const type = types[Math.floor(Math.random() * types.length)];
+  const nameBase = LOOT_NAMES[Math.floor(Math.random() * LOOT_NAMES.length)];
   
+  const statBoost = (rarityIndex + 1) * 10 + (level * 2);
   const seed = encodeURIComponent(nameBase.toLowerCase().replace(/\s+/g, '-'));
   
   return {
+    id: `loot-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     name: nameBase,
-    type: Math.random() > 0.5 ? 'Weapon' : 'Material',
-    rarity: rarity,
-    imageUrl: `https://picsum.photos/seed/${seed}/200/200`
+    type,
+    rarity,
+    imageUrl: `https://picsum.photos/seed/${seed}/200/200`,
+    statBoost
   };
 }

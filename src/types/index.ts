@@ -3,7 +3,7 @@ import { Timestamp } from 'firebase/firestore';
 
 export type PostRarity = 'Common' | 'Rare' | 'Epic' | 'Legendary';
 export type HeroClass = 'Warrior' | 'Mage' | 'Rogue';
-export type ItemType = 'Weapon' | 'Armor' | 'Material' | 'Relic';
+export type ItemType = 'Weapon' | 'Armor' | 'Material' | 'Relic' | 'Potion';
 
 export type PostAward = {
   type: 'Bronze' | 'Silver' | 'Gold';
@@ -76,22 +76,30 @@ export type DashboardStats = {
   avgConversionRate: { value: number; change: number };
 };
 
-export type UserProfile = {
-  displayName: string;
-  email: string;
-  photoURL: string;
-  inventory?: string[];
-  level: number;
-  karma: number;
-  trophies?: string[];
-  bossKills?: number;
-  totalDamageDealt?: number;
-  heroClass?: HeroClass;
-};
-
 export type LootItem = {
+  id: string;
   name: string;
   type: ItemType;
   rarity: PostRarity;
   imageUrl: string;
+  statBoost?: number;
+};
+
+export type UserProfile = {
+  displayName: string;
+  email: string;
+  photoURL: string;
+  inventory?: LootItem[];
+  stash?: LootItem[];
+  equipped?: {
+    weapon?: LootItem | null;
+    armor?: LootItem | null;
+  };
+  level: number;
+  karma: number;
+  potions?: number;
+  trophies?: string[];
+  bossKills?: number;
+  totalDamageDealt?: number;
+  heroClass?: HeroClass;
 };

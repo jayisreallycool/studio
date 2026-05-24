@@ -18,12 +18,11 @@
         "tags": { "type": "array", "items": { "type": "string" } },
         "createdAt": { "type": "object" },
         "rarity": { "type": "string", "enum": ["Common", "Rare", "Epic", "Legendary"] },
-        "affiliateLink": { "type": "string", "format": "uri", "description": "Loot drop link" },
         "aiResult": {
           "type": "object",
           "properties": {
-            "relevanceScore": { "type": "number", "description": "Power Level Score" },
-            "reasoning": { "type": "string", "description": "Appraisal reasoning" }
+            "relevanceScore": { "type": "number" },
+            "reasoning": { "type": "string" }
           }
         }
       }
@@ -36,33 +35,29 @@
         "email": { "type": "string" },
         "level": { "type": "number" },
         "karma": { "type": "number" },
-        "inventory": { "type": "array", "items": { "type": "string" } },
-        "bossKills": { "type": "number" },
-        "totalDamageDealt": { "type": "number" },
+        "inventory": { "type": "array", "items": { "$ref": "#/entities/Item" } },
+        "stash": { "type": "array", "items": { "$ref": "#/entities/Item" } },
+        "equipped": {
+            "type": "object",
+            "properties": {
+                "weapon": { "$ref": "#/entities/Item" },
+                "armor": { "$ref": "#/entities/Item" }
+            }
+        },
+        "potions": { "type": "number" },
         "heroClass": { "type": "string", "enum": ["Warrior", "Mage", "Rogue"] }
       }
     },
-    "Monster": {
-      "title": "Monster",
-      "type": "object",
-      "properties": {
-        "name": { "type": "string" },
-        "hp": { "type": "number" },
-        "maxHp": { "type": "number" },
-        "atk": { "type": "number" },
-        "level": { "type": "number" },
-        "imageUrl": { "type": "string" },
-        "description": { "type": "string" }
-      }
-    },
     "Item": {
-      "title": "Item",
+      "title": "Loot Item",
       "type": "object",
       "properties": {
+        "id": { "type": "string" },
         "name": { "type": "string" },
-        "type": { "type": "string", "enum": ["Weapon", "Armor", "Material", "Relic"] },
+        "type": { "type": "string", "enum": ["Weapon", "Armor", "Material", "Relic", "Potion"] },
         "rarity": { "type": "string", "enum": ["Common", "Rare", "Epic", "Legendary"] },
-        "imageUrl": { "type": "string" }
+        "imageUrl": { "type": "string" },
+        "statBoost": { "type": "number" }
       }
     }
   },
@@ -77,10 +72,6 @@
     "/users/{userId}": {
       "schema": { "$ref": "#/entities/UserProfile" },
       "description": "Operator profile data."
-    },
-    "/worldEvents/{eventId}": {
-      "schema": { "$ref": "#/entities/WorldEvent" },
-      "description": "Active and scheduled world boss events."
     }
   }
 }
