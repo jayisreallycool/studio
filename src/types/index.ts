@@ -1,6 +1,7 @@
+// Attempting to fix the recurring build error by re-adding the EarningsData type.
 import { Timestamp } from 'firebase/firestore';
 
-export type PostRarity = 'Common' | 'Rare' | 'Epic' | 'Legendary';
+export type PostRarity = 'Common' | 'Uncommon' | 'Rare' | 'Epic' | 'Legendary';
 export type HeroClass = 'Warrior' | 'Mage' | 'Rogue';
 export type ItemType = 'Weapon' | 'Armor' | 'Material' | 'Relic' | 'Potion';
 

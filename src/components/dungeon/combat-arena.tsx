@@ -107,25 +107,40 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
   };
 
   const handleVictory = () => {
-    if (!firestore) return;
+    if (!firestore || !monster) return;
     
-    const loot = generateLoot(profile.level);
+    const lootItems = generateLoot(profile.level);
+    const xpGained = 50;
+    let toastDescription: string;
+
+    if (lootItems.length > 0) {
+      const lootNames = lootItems.map(item => item.name).join(', ');
+      toastDescription = `Recovered: ${lootNames}! +${xpGained} XP.`;
+    } else {
+      toastDescription = `No loot recovered. +${xpGained} XP.`;
+    }
+
     toast({ 
       title: "ANOMALY PURGED", 
-      description: `Recovered: ${loot.name}! +50 XP.` 
+      description: toastDescription
     });
     
     const userRef = doc(firestore, 'users', userUid);
-    const updates: any = {
-      karma: increment(50),
+    
+    const updates: { [key: string]: any } = {
+      karma: increment(xpGained),
       level: increment(0.1),
-      totalDamageDealt: increment(monster?.maxHp || 0),
+      totalDamageDealt: increment(monster.maxHp),
     };
 
-    if (loot.type === 'Potion') {
-      updates.potions = increment(1);
-    } else {
-      updates.inventory = arrayUnion(loot);
+    const potionsFound = lootItems.filter(item => item.type === 'Potion').length;
+    if (potionsFound > 0) {
+      updates.potions = increment(potionsFound);
+    }
+
+    const itemsToInventory = lootItems.filter(item => item.type !== 'Potion');
+    if (itemsToInventory.length > 0) {
+      updates.inventory = arrayUnion(...itemsToInventory);
     }
 
     updateDoc(userRef, updates).catch(async () => {
