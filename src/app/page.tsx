@@ -30,13 +30,14 @@ export default function Home() {
 
   const eventsQuery = useMemo(() => {
     if (!firestore) return null;
+    // Show active raids OR the upcoming monthly Demon King raid
     return query(
       collection(firestore, 'worldEvents'), 
-      where('status', '==', 'active'),
+      where('status', 'in', ['active', 'upcoming']),
       limit(1)
     );
   }, [firestore]);
-  const { data: activeEvents, loading: eventsLoading } = useCollection<WorldEvent>(eventsQuery);
+  const { data: worldEvents, loading: eventsLoading } = useCollection<WorldEvent>(eventsQuery);
 
   if (userLoading || profileLoading) {
     return (
@@ -65,7 +66,7 @@ export default function Home() {
           </div>
         </div>
 
-        {activeEvents && activeEvents.map(event => (
+        {worldEvents && worldEvents.map(event => (
           <BossRaidCard key={event.id} event={event} />
         ))}
 
@@ -139,7 +140,7 @@ export default function Home() {
               <div className="border-l-4 border-red-600 pl-3">
                 <p className="text-[10px] font-bold text-zinc-400 leading-tight uppercase">
                   <span className="text-red-600 font-black mr-1">[WAR]:</span> 
-                  Demon King has breached the North Wall.
+                  Demon King raid protocol initiated for the 13th.
                 </p>
               </div>
               <div className="border-l-4 border-primary pl-3">

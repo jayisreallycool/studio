@@ -1,4 +1,3 @@
-
 'use client';
 
 import { FirebaseProvider } from './provider';
@@ -23,84 +22,94 @@ export function FirebaseClientProvider({
       try {
         const eventsCollectionRef = collection(firestore, 'worldEvents');
         const eventsSnapshot = await getDocs(eventsCollectionRef);
-        if (eventsSnapshot.empty) {
-          const eventsBatch = writeBatch(firestore);
-          const eventId = 'demon-king-raid';
-          const eventDoc = doc(firestore, 'worldEvents', eventId);
-          eventsBatch.set(eventDoc, {
-            title: 'DEMON KING',
-            type: 'Omega Invasion',
-            bossId: 'demon-king',
-            status: 'active',
-            startTime: serverTimestamp(),
-            endTime: Timestamp.fromMillis(Date.now() + 3600000 * 24),
-            globalHealth: 1000000,
-            maxHealth: 1000000,
-            participants: 1420
-          });
-          await eventsBatch.commit();
-        }
+        
+        // Always ensure the Demon King exists with the correct schedule
+        const eventId = 'demon-king-raid';
+        const eventDocRef = doc(firestore, 'worldEvents', eventId);
+        
+        // Calculate the 13th of the current month
+        const now = new Date();
+        const ptFormatter = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'America/Los_Angeles',
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+          second: 'numeric',
+          hour12: false,
+        });
 
+        const parts = ptFormatter.formatToParts(now);
+        const getPart = (type: string) => parts.find(p => p.type === type)?.value;
+        
+        const ptYear = parseInt(getPart('year')!);
+        const ptMonth = parseInt(getPart('month')!) - 1; // 0-indexed
+        const ptDay = parseInt(getPart('day')!);
+        const ptHour = parseInt(getPart('hour')!);
+
+        // Start time: 13th of this month at 13:00 (1:00 PM) PT
+        const startTime = new Date(ptYear, ptMonth, 13, 13, 0, 0);
+        // If the 13th has already passed this month, schedule for next month
+        if (ptDay > 13 || (ptDay === 13 && ptHour >= 14)) {
+            startTime.setMonth(startTime.getMonth() + 1);
+        }
+        
+        const endTime = new Date(startTime.getTime() + 3600000); // 1 hour duration
+
+        const isLive = ptDay === 13 && ptHour === 13;
+
+        const eventsBatch = writeBatch(firestore);
+        eventsBatch.set(eventDocRef, {
+          title: 'THE DEMON KING',
+          type: 'Omega Invasion',
+          bossId: 'demon-king',
+          status: isLive ? 'active' : 'upcoming',
+          startTime: Timestamp.fromDate(startTime),
+          endTime: Timestamp.fromDate(endTime),
+          globalHealth: 1000000,
+          maxHealth: 1000000,
+          participants: 1420
+        }, { merge: true });
+
+        // Seed Challenges
         const challengesCollectionRef = collection(firestore, 'challenges');
         const challengesSnapshot = await getDocs(challengesCollectionRef);
         if (challengesSnapshot.empty) {
-          const challengesBatch = writeBatch(firestore);
           staticChallenges.forEach((challenge) => {
             const docRef = doc(firestore, 'challenges', challenge.id);
             const challengeData = { ...challenge };
             delete (challengeData as any).id;
-            challengesBatch.set(docRef, challengeData);
+            eventsBatch.set(docRef, challengeData);
           });
-          await challengesBatch.commit();
         }
 
+        // Seed Posts
         const postsCollectionRef = collection(firestore, 'posts');
         const postsSnapshot = await getDocs(postsCollectionRef);
-        
-        const legacyDocs = postsSnapshot.docs.filter(d => {
-            const data = d.data();
-            const title = (data.title || '').toLowerCase();
-            const content = (data.content || '').toLowerCase();
-            const author = (data.author || '').toLowerCase();
-            
-            return title.includes('seo') || 
-                   title.includes('passive income') || 
-                   title.includes('conversion') ||
-                   author.includes('elena voss') ||
-                   author.includes('marcus chen') ||
-                   author.includes('sophie dubois') ||
-                   content.includes('affiliate marketing');
-        });
-
-        if (postsSnapshot.empty || legacyDocs.length > 0) {
-          const postsBatch = writeBatch(firestore);
-          
-          legacyDocs.forEach(d => postsBatch.delete(d.ref));
-
-          if (postsSnapshot.empty || legacyDocs.length > 0) {
-            staticPosts.forEach((post, index) => {
-              const docRef = doc(postsCollectionRef);
-              const postData = {
-                ...post,
-                createdAt: Timestamp.fromMillis(Date.now() - (index + 1) * 3 * 3600000),
-                rarity: index === 0 ? 'Legendary' : index === 1 ? 'Epic' : 'Rare',
-                upvotes: 100 + (index * 50),
-                downvotes: 10,
-                comments: 20 + (index * 5),
-                imageHint: index === 0 ? "dark scythe" : index === 1 ? "clockwork armor" : "magic crystal",
-                aiResult: {
-                    relevanceScore: 0.7 + (Math.random() * 0.25),
-                    reasoning: "Authentic artifact pattern detected in the Arena flux.",
-                    boostRecommendation: index === 0
-                }
-              };
-              delete (postData as any).id;
-              postsBatch.set(docRef, postData);
-            });
-          }
-          await postsBatch.commit();
+        if (postsSnapshot.empty) {
+          staticPosts.forEach((post, index) => {
+            const docRef = doc(postsCollectionRef);
+            const postData = {
+              ...post,
+              createdAt: Timestamp.fromMillis(Date.now() - (index + 1) * 3 * 3600000),
+              rarity: index === 0 ? 'Legendary' : index === 1 ? 'Epic' : 'Rare',
+              upvotes: 100 + (index * 50),
+              downvotes: 10,
+              comments: 20 + (index * 5),
+              imageHint: index === 0 ? "dark scythe" : index === 1 ? "clockwork armor" : "magic crystal",
+              aiResult: {
+                  relevanceScore: 0.7 + (Math.random() * 0.25),
+                  reasoning: "Authentic artifact pattern detected in the Arena flux.",
+                  boostRecommendation: index === 0
+              }
+            };
+            delete (postData as any).id;
+            eventsBatch.set(docRef, postData);
+          });
         }
 
+        await eventsBatch.commit();
       } catch (error) {
         // Silently catch permission errors during initial race conditions
       }
