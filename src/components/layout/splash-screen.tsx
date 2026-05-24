@@ -17,12 +17,15 @@ export function SplashScreen() {
 
   const handleSignIn = async () => {
     if (!auth || !firestore) return;
-    setIsConnecting(true);
     
     const provider = new GoogleAuthProvider();
     
     try {
+      // We don't set connecting state BEFORE the popup to ensure immediate user gesture context
       const result = await signInWithPopup(auth, provider);
+      
+      // Now that popup is successful, show connecting UI while we sync data
+      setIsConnecting(true);
       const user = result.user;
 
       const userDocRef = doc(firestore, 'users', user.uid);
@@ -31,12 +34,13 @@ export function SplashScreen() {
       if (!userDoc.exists()) {
         const batch = writeBatch(firestore);
         batch.set(userDocRef, {
-          displayName: user.displayName,
+          displayName: user.displayName || 'Operator',
           email: user.email,
           photoURL: user.photoURL,
           createdAt: serverTimestamp(),
           level: 1,
           karma: 0,
+          potions: 3,
         });
         
         const statsDocRef = doc(firestore, `users/${user.uid}/dashboard/stats`);
@@ -50,25 +54,25 @@ export function SplashScreen() {
         await batch.commit();
       }
     } catch (error: any) {
-      if (error.code === 'auth/popup-closed-by-user') {
-        return;
-      }
+      setIsConnecting(false);
+      
+      if (error.code === 'auth/popup-closed-by-user') return;
+      
       if (error.code === 'auth/popup-blocked') {
         toast({
-          title: "Popup Blocked",
-          description: "Please allow popups for this site to establish your neural link.",
+          title: "Protocol Blocked",
+          description: "Neural interface blocked by browser. Please allow popups for this sector.",
           variant: "destructive"
         });
         return;
       }
+      
       console.error("Link Failure:", error);
       toast({
         title: "Neural Link Failure",
         description: error.message || "Failed to establish connection to the Arena.",
         variant: "destructive"
       });
-    } finally {
-      setIsConnecting(false);
     }
   };
 
@@ -109,7 +113,7 @@ export function SplashScreen() {
             {isConnecting ? (
               <>
                 <Loader2 className="mr-3 h-8 w-8 animate-spin" />
-                LINKING...
+                SYNCING...
               </>
             ) : (
               <>
@@ -122,7 +126,7 @@ export function SplashScreen() {
           <div className="grid grid-cols-3 gap-4 mt-8">
             <div className="flex flex-col items-center gap-2 p-3 bg-zinc-900/50 border-2 border-zinc-800">
               <Zap className="w-5 h-5 text-yellow-500" />
-              <span className="text-[8px] font-black uppercase text-zinc-500">Fast Pace</span>
+              <span className="text-[8px] font-black uppercase text-zinc-500">High Stakes</span>
             </div>
             <div className="flex flex-col items-center gap-2 p-3 bg-zinc-900/50 border-2 border-zinc-800">
               <Shield className="w-5 h-5 text-blue-500" />
