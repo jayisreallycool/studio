@@ -1,4 +1,5 @@
-import { Monster } from '@/types';
+
+import { Monster, LootItem, PostRarity } from '@/types';
 
 const PREFIXES = [
   'Void-Touched', 'Corrupted', 'Infernal', 'Glacial', 'Ancient', 'Mechanical',
@@ -24,6 +25,11 @@ const SUFFIXES = [
   'the Unstoppable', 'of the High Council', 'the Blight', 'of Shadows'
 ];
 
+const LOOT_NAMES = [
+  'Void Fragment', 'Aether Blade', 'Shadow Core', 'Chrono Gear', 'Mana Crystal',
+  'Titan Plate', 'Infernal Ember', 'Glacial Shard', 'Ancient Tome', 'Blighted Vine'
+];
+
 export function generateMonster(level: number): Monster {
   const prefix = PREFIXES[Math.floor(Math.random() * PREFIXES.length)];
   const base = BASE_TYPES[Math.floor(Math.random() * BASE_TYPES.length)];
@@ -41,7 +47,6 @@ export function generateMonster(level: number): Monster {
   const hp = Math.floor(hpBase * variance);
   const atk = Math.floor(atkBase * variance);
 
-  // Generate a unique seed based on name to ensure consistent (but unique) AI images
   const seed = encodeURIComponent(name.toLowerCase().replace(/\s+/g, '-'));
   const imageUrl = `https://picsum.photos/seed/${seed}/800/600`;
 
@@ -55,5 +60,21 @@ export function generateMonster(level: number): Monster {
     imageUrl,
     imageHint: `${prefix.toLowerCase()} ${base.hint}`,
     description: `${base.desc} This ${name} has been warped by Arena energy.`
+  };
+}
+
+export function generateLoot(level: number): LootItem {
+  const nameBase = LOOT_NAMES[Math.floor(Math.random() * LOOT_NAMES.length)];
+  const rarities: PostRarity[] = ['Common', 'Rare', 'Epic', 'Legendary'];
+  const rarityIndex = Math.min(3, Math.floor(Math.random() * (level / 2)));
+  const rarity = rarities[rarityIndex];
+  
+  const seed = encodeURIComponent(nameBase.toLowerCase().replace(/\s+/g, '-'));
+  
+  return {
+    name: nameBase,
+    type: Math.random() > 0.5 ? 'Weapon' : 'Material',
+    rarity: rarity,
+    imageUrl: `https://picsum.photos/seed/${seed}/200/200`
   };
 }

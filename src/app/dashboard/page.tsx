@@ -1,3 +1,4 @@
+
 'use client';
 import { AnalyticsCard } from '@/components/dashboard/analytics-card';
 import { EarningsChart } from '@/components/dashboard/earnings-chart';
@@ -6,7 +7,7 @@ import {
   dashboardStats as staticDashboardStats,
   earningsData as staticEarningsData,
 } from '@/lib/data';
-import { BarChart, Coins, Eye, Zap, Trophy, Shield, Star, Sword, Medal, Box } from 'lucide-react';
+import { Coins, Eye, Zap, Trophy, Shield, Star, Sword, Medal, Box, Sparkles } from 'lucide-react';
 import { useDoc, useUser, useCollection, useFirestore } from '@/firebase';
 import { DashboardStats, EarningsData, Post, UserProfile } from '@/types';
 import { doc, collection, query, where, orderBy, limit } from 'firebase/firestore';
@@ -98,7 +99,7 @@ export default function DashboardPage() {
           <div className="space-y-3 flex-grow">
             <div className="flex justify-between text-[11px] font-black uppercase tracking-[0.2em] text-primary">
               <span>Level {profile?.level || 1}</span>
-              <span>{profile?.karma || 0} / 500 XP</span>
+              <span>{Math.round(profile?.karma || 0)} / 500 XP</span>
             </div>
             <Progress value={((profile?.karma || 0) % 500) / 5} className="h-3 bg-zinc-900 border-2 border-black" />
           </div>
@@ -171,16 +172,21 @@ export default function DashboardPage() {
            <Card className="comic-card bg-zinc-900 overflow-hidden group">
              <CardHeader className="bg-black border-b-4 border-black">
                <CardTitle className="text-xs font-black uppercase tracking-[0.3em] flex items-center gap-2 text-primary">
-                 <Star className="h-4 w-4 fill-primary animate-pulse" /> Rare Inventory
+                 <Star className="h-4 w-4 fill-primary animate-pulse" /> Operator Inventory
                </CardTitle>
              </CardHeader>
              <CardContent className="p-6">
                {profile?.inventory?.length ? (
-                 <div className="grid grid-cols-3 gap-4">
+                 <div className="grid grid-cols-1 gap-3">
                    {profile.inventory.map((item, i) => (
-                     <div key={i} className="aspect-square bg-black border-4 border-black flex items-center justify-center hover:border-primary transition-colors cursor-help group relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                        <span className="text-4xl group-hover:scale-110 transition-transform">💎</span>
-                        <div className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full animate-ping" />
+                     <div key={i} className="flex items-center gap-4 p-3 bg-black border-2 border-zinc-800 hover:border-primary transition-colors cursor-help group shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                        <div className="w-10 h-10 bg-zinc-900 border border-zinc-800 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                          {item.includes('Blade') ? '⚔️' : item.includes('Core') ? '⚛️' : item.includes('Shard') ? '💎' : '📦'}
+                        </div>
+                        <div className="flex flex-col">
+                           <span className="text-[10px] font-black uppercase text-foreground">{item}</span>
+                           <span className="text-[8px] font-bold text-primary uppercase tracking-tighter italic">Recovered Loot</span>
+                        </div>
                      </div>
                    ))}
                  </div>

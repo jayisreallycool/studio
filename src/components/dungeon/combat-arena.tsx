@@ -1,18 +1,19 @@
+
 'use client';
 import { useState, useEffect, useMemo } from 'react';
-import { UserProfile, Monster } from '@/types';
-import { doc, updateDoc, increment } from 'firebase/firestore';
+import { UserProfile, Monster, LootItem } from '@/types';
+import { doc, updateDoc, increment, arrayUnion } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Swords, Heart, Skull, Zap, Shield, Flame, Target, Loader2 } from 'lucide-react';
+import { Swords, Shield, Target, Loader2, Skull } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import { generateMonster } from '@/lib/monster-generator';
+import { generateMonster, generateLoot } from '@/lib/monster-generator';
 
 interface CombatArenaProps {
   profile: UserProfile;
@@ -89,13 +90,19 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
 
   const handleVictory = () => {
     if (!firestore) return;
-    toast({ title: "ANOMALY PURGED", description: "You gained 50 XP and recovered precious materials!" });
+    
+    const loot = generateLoot(profile.level);
+    toast({ 
+      title: "ANOMALY PURGED", 
+      description: `You recovered ${loot.name}! +50 XP gained.` 
+    });
     
     const userRef = doc(firestore, 'users', userUid);
     const updates = {
       karma: increment(50),
       level: increment(0.1),
-      totalDamageDealt: increment(monster?.maxHp || 0)
+      totalDamageDealt: increment(monster?.maxHp || 0),
+      inventory: arrayUnion(`${loot.name} (${loot.rarity})`)
     };
 
     updateDoc(userRef, updates).catch(async () => {

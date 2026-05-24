@@ -3,6 +3,7 @@ import { Timestamp } from 'firebase/firestore';
 
 export type PostRarity = 'Common' | 'Rare' | 'Epic' | 'Legendary';
 export type HeroClass = 'Warrior' | 'Mage' | 'Rogue';
+export type ItemType = 'Weapon' | 'Armor' | 'Material' | 'Relic';
 
 export type PostAward = {
   type: 'Bronze' | 'Silver' | 'Gold';
@@ -86,4 +87,11 @@ export type UserProfile = {
   bossKills?: number;
   totalDamageDealt?: number;
   heroClass?: HeroClass;
+};
+
+export type LootItem = {
+  name: string;
+  type: ItemType;
+  rarity: PostRarity;
+  imageUrl: string;
 };

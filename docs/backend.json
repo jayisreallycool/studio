@@ -54,6 +54,16 @@
         "imageUrl": { "type": "string" },
         "description": { "type": "string" }
       }
+    },
+    "Item": {
+      "title": "Item",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["Weapon", "Armor", "Material", "Relic"] },
+        "rarity": { "type": "string", "enum": ["Common", "Rare", "Epic", "Legendary"] },
+        "imageUrl": { "type": "string" }
+      }
     }
   },
   "auth": {
