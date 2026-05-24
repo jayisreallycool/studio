@@ -1,13 +1,14 @@
+
 'use client';
 import { useEffect, useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Bell, LogIn, LogOut, PanelLeft, User as UserIcon } from "lucide-react";
+import { Bell, LogIn, LogOut, PanelLeft, User as UserIcon, Github } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth, useUser, useFirestore } from "@/firebase";
-import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
 
 
@@ -21,9 +22,9 @@ export function AppHeader() {
     setIsClient(true)
   }, [])
 
-  const handleSignIn = async () => {
+  const handleSignIn = async (providerType: 'google' | 'github') => {
     if (!auth || !firestore) return;
-    const provider = new GoogleAuthProvider();
+    const provider = providerType === 'google' ? new GoogleAuthProvider() : new GithubAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
@@ -37,7 +38,9 @@ export function AppHeader() {
           displayName: user.displayName,
           email: user.email,
           photoURL: user.photoURL,
-          createdAt: serverTimestamp()
+          createdAt: serverTimestamp(),
+          level: 1,
+          karma: 0,
         };
 
         const statsDocRef = doc(firestore, `users/${user.uid}/dashboard/stats`);
@@ -130,10 +133,16 @@ export function AppHeader() {
                 </DropdownMenuItem>
               </>
             ) : (
-              <DropdownMenuItem onClick={handleSignIn}>
-                <LogIn className="mr-2 h-4 w-4" />
-                <span>Sign in with Google</span>
-              </DropdownMenuItem>
+              <>
+                <DropdownMenuItem onClick={() => handleSignIn('google')}>
+                  <LogIn className="mr-2 h-4 w-4" />
+                  <span>Sign in with Google</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSignIn('github')}>
+                  <Github className="mr-2 h-4 w-4" />
+                  <span>Sign in with GitHub</span>
+                </DropdownMenuItem>
+              </>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
