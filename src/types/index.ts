@@ -1,3 +1,4 @@
+
 import { Timestamp } from 'firebase/firestore';
 
 export type PostRarity = 'Common' | 'Rare' | 'Epic' | 'Legendary';
@@ -32,6 +33,19 @@ export type Post = {
   };
 };
 
+export type WorldEvent = {
+  id: string;
+  title: string;
+  type: string;
+  bossId: string;
+  status: 'upcoming' | 'active' | 'concluded';
+  startTime: Timestamp;
+  endTime: Timestamp;
+  globalHealth: number;
+  maxHealth: number;
+  participants: number;
+};
+
 export type Challenge = {
   id: string;
   title: string;
@@ -50,11 +64,6 @@ export type DashboardStats = {
   level?: number;
 };
 
-export type EarningsData = {
-  month: string;
-  earnings: number;
-}[];
-
 export type UserProfile = {
   displayName: string;
   email: string;
@@ -63,4 +72,6 @@ export type UserProfile = {
   level: number;
   karma: number;
   trophies?: string[];
+  bossKills?: number;
+  totalDamageDealt?: number;
 };

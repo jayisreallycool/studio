@@ -36,7 +36,24 @@
         "email": { "type": "string" },
         "level": { "type": "number" },
         "karma": { "type": "number" },
-        "inventory": { "type": "array", "items": { "type": "string" } }
+        "inventory": { "type": "array", "items": { "type": "string" } },
+        "bossKills": { "type": "number" },
+        "totalDamageDealt": { "type": "number" }
+      }
+    },
+    "WorldEvent": {
+      "title": "World Event",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "type": { "type": "string" },
+        "bossId": { "type": "string" },
+        "status": { "type": "string", "enum": ["upcoming", "active", "concluded"] },
+        "startTime": { "type": "object" },
+        "endTime": { "type": "object" },
+        "globalHealth": { "type": "number" },
+        "maxHealth": { "type": "number" },
+        "participants": { "type": "number" }
       }
     }
   },
@@ -51,6 +68,10 @@
     "/users/{userId}": {
       "schema": { "$ref": "#/entities/UserProfile" },
       "description": "Operator profile data."
+    },
+    "/worldEvents/{eventId}": {
+      "schema": { "$ref": "#/entities/WorldEvent" },
+      "description": "Active and scheduled world boss events."
     }
   }
 }
