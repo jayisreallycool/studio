@@ -1,4 +1,3 @@
-
 'use client';
 import { PostCard } from '@/components/feed/post-card';
 import { BossRaidCard } from '@/components/events/boss-raid-card';
@@ -8,7 +7,7 @@ import { collection, query, orderBy, limit, where, doc } from 'firebase/firestor
 import { useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Trophy, Users, Zap, Swords, Flame, Skull, ShieldCheck } from 'lucide-react';
+import { Trophy, Users, Zap, Swords, Flame, Skull, ShieldCheck, Loader2 } from 'lucide-react';
 import { HeroSelection } from '@/components/dungeon/hero-selection';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -42,7 +41,7 @@ export default function Home() {
   if (userLoading || profileLoading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-100px)]">
-        <Skull className="w-12 h-12 animate-pulse text-primary" />
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
       </div>
     );
   }
@@ -53,14 +52,14 @@ export default function Home() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-12">
-      <div className="lg:col-span-3 space-y-10">
+    <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8 md:gap-12 px-4 md:px-0">
+      <div className="lg:col-span-3 space-y-8 md:space-y-10">
         <div className="flex flex-col md:flex-row md:items-center justify-between border-b-8 border-black pb-6 gap-4">
-          <h1 className="text-6xl font-black italic uppercase tracking-tighter text-foreground flex items-center gap-3 comic-text-stroke">
-            <Skull className="text-red-600 h-12 w-12 fill-red-600" /> The Arena
+          <h1 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter text-foreground flex items-center gap-3 comic-text-stroke">
+            <Skull className="text-red-600 h-8 w-8 md:h-12 md:w-12 fill-red-600" /> The Arena
           </h1>
           <div className="flex gap-4">
-            <Button asChild className="comic-button bg-primary text-black h-12 px-8 text-lg italic">
+            <Button asChild className="comic-button bg-primary text-black h-10 md:h-12 px-6 md:px-8 text-md md:text-lg italic">
               <Link href="/dungeon">ENTER DUNGEON</Link>
             </Button>
           </div>
@@ -70,11 +69,11 @@ export default function Home() {
           <BossRaidCard key={event.id} event={event} />
         ))}
 
-        <div className="space-y-8">
+        <div className="space-y-6 md:space-y-8">
           {postsLoading && (
             <div className="space-y-6">
-              <Skeleton className="w-full h-40 rounded-none border-4 border-black" />
-              <Skeleton className="w-full h-40 rounded-none border-4 border-black" />
+              <Skeleton className="w-full h-40 md:h-64 rounded-none border-4 border-black" />
+              <Skeleton className="w-full h-40 md:h-64 rounded-none border-4 border-black" />
             </div>
           )}
           {!postsLoading && posts && posts.length > 0 ? (
@@ -95,7 +94,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="lg:col-span-1 space-y-8">
+      <div className="lg:col-span-1 space-y-6 md:space-y-8">
         {!user && (
           <Card className="comic-card bg-primary border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <CardHeader>
@@ -140,7 +139,7 @@ export default function Home() {
               <div className="border-l-4 border-red-600 pl-3">
                 <p className="text-[10px] font-bold text-zinc-400 leading-tight uppercase">
                   <span className="text-red-600 font-black mr-1">[WAR]:</span> 
-                  Demon King has breached the North Wall. All Operators mobilize!
+                  Demon King has breached the North Wall.
                 </p>
               </div>
               <div className="border-l-4 border-primary pl-3">
