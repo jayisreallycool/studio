@@ -3,37 +3,26 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // Arena artifacts (posts)
     match /posts/{postId} {
-      allow read: if true;
-      allow create: if true; // Allow client seeding and user posts
-      allow delete: if true; // Allow cleanup for seeding/prototype consistency
-      allow update: if request.auth != null; // Allow votes/interactions
+      allow read, write: if true;
     }
 
     // World Events and Super Boss raids
     match /worldEvents/{eventId} {
-      allow read: if true;
-      allow create: if true; 
-      allow update: if true; // Allow damage contribution from all operators (guests included)
+      allow read, write: if true;
     }
 
     // Quests (challenges)
     match /challenges/{challengeId} {
-      allow read: if true;
-      allow create: if true; 
-      allow update: if false;
-      allow delete: if false;
+      allow read, write: if true;
     }
 
     // Operator Profiles
     match /users/{userId} {
-      allow read: if true;
-      allow create: if true; // Allow profile creation on first login
-      allow update: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if true;
       
-      // Encrypted Command Center data
+      // Encrypted Command Center data (Private)
       match /dashboard/{document=**} {
-        allow read: if request.auth != null && request.auth.uid == userId;
-        allow write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
   }
