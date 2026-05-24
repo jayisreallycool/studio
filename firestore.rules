@@ -4,27 +4,22 @@ service cloud.firestore {
     // Arena artifacts (posts)
     match /posts/{postId} {
       allow read: if true;
-      // Allow creation for seeding and by authenticated users
-      allow create: if true;
-      // Allow author to delete their own artifacts
-      allow delete: if request.auth != null && request.auth.uid == resource.data.uid;
-      // Allow any authenticated user to update (for voting/interactions)
-      allow update: if request.auth != null;
+      allow create: if true; // Allow client seeding and user posts
+      allow delete: if true; // Allow cleanup for seeding/prototype consistency
+      allow update: if request.auth != null; // Allow votes/interactions
     }
 
     // World Events and Super Boss raids
     match /worldEvents/{eventId} {
       allow read: if true;
-      // Allow seeding from client for prototype
-      allow create: if true;
-      // Allow authenticated operators to strike the boss
-      allow update: if request.auth != null;
+      allow create: if true; 
+      allow update: if true; // Allow damage contribution from all operators (guests included)
     }
 
     // Quests (challenges)
     match /challenges/{challengeId} {
       allow read: if true;
-      allow create: if true; // Allow seeding
+      allow create: if true; 
       allow update: if false;
       allow delete: if false;
     }
@@ -32,7 +27,7 @@ service cloud.firestore {
     // Operator Profiles
     match /users/{userId} {
       allow read: if true;
-      allow create: if request.auth != null && request.auth.uid == userId;
+      allow create: if true; // Allow profile creation on first login
       allow update: if request.auth != null && request.auth.uid == userId;
       
       // Encrypted Command Center data
