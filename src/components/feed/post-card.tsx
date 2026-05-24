@@ -1,3 +1,4 @@
+
 'use client';
 import type { Post, PostRarity } from '@/types';
 import Image from 'next/image';
@@ -129,7 +130,14 @@ export function PostCard({ post, priority = false }: PostCardProps) {
         
         {post.imageUrl && (
             <div className="relative w-full overflow-hidden border-4 border-black aspect-video max-h-[500px] group mb-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,0.5)]">
-              <Image src={post.imageUrl} alt={post.title} fill className="object-cover transition-transform duration-500 group-hover:scale-110" priority={priority} />
+              <Image 
+                src={post.imageUrl} 
+                alt={post.title} 
+                fill 
+                className="object-cover transition-transform duration-500 group-hover:scale-110" 
+                priority={priority}
+                data-ai-hint={post.imageHint || "fantasy artifact"}
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
             </div>
         )}

@@ -1,0 +1,47 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "operator-prime-avatar",
+      "description": "Avatar for Operator Prime",
+      "imageUrl": "https://picsum.photos/seed/88/200/200",
+      "imageHint": "dark warrior"
+    },
+    {
+      "id": "sentinel-x-avatar",
+      "description": "Avatar for Sentinel X",
+      "imageUrl": "https://picsum.photos/seed/99/200/200",
+      "imageHint": "cybernetic mage"
+    },
+    {
+      "id": "rift-walker-avatar",
+      "description": "Avatar for Rift Walker",
+      "imageUrl": "https://picsum.photos/seed/77/200/200",
+      "imageHint": "mystic rogue"
+    },
+    {
+      "id": "demon-king-raid",
+      "description": "The Demon King Boss image",
+      "imageUrl": "https://picsum.photos/seed/666/1200/800",
+      "imageHint": "demon monster"
+    },
+    {
+      "id": "artifact-scythe",
+      "description": "Void-Touched Reaper Scythe",
+      "imageUrl": "https://picsum.photos/seed/13/800/600",
+      "imageHint": "fantasy scythe"
+    },
+    {
+      "id": "artifact-armor",
+      "description": "Chronos Weaver Armor",
+      "imageUrl": "https://picsum.photos/seed/42/800/600",
+      "imageHint": "clockwork armor"
+    },
+    {
+      "id": "artifact-infuser",
+      "description": "Crystalline Mana Infuser",
+      "imageUrl": "https://picsum.photos/seed/7/800/600",
+      "imageHint": "magic crystal"
+    }
+  ]
+}

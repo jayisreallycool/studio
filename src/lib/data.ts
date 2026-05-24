@@ -1,17 +1,20 @@
+
 import type { Post, Challenge } from '@/types';
 import { PlaceHolderImages } from './placeholder-images';
 
 const findImage = (id: string) => PlaceHolderImages.find(img => img.id === id)?.imageUrl || '';
+const findHint = (id: string) => PlaceHolderImages.find(img => img.id === id)?.imageHint || '';
 
 export const posts: Post[] = [
   {
     id: 'artifact-1',
     uid: 'system-operator',
     title: 'Void-Touched Reaper Scythe',
-    content: "A weapon forged in the depths of the Shadow Realm. It hums with a malevolent energy that drains the lifeforce of those it strikes. This artifact was recovered from the first Breach Event during the Great Incursion.",
+    content: "A weapon forged in the depths of the Shadow Realm. It hums with a malevolent energy that drains the lifeforce of those it strikes.",
     author: 'Operator Prime',
-    avatarUrl: findImage('user-avatar-1'),
-    imageUrl: findImage('post-image-1'),
+    avatarUrl: findImage('operator-prime-avatar'),
+    imageUrl: findImage('artifact-scythe'),
+    imageHint: findHint('artifact-scythe'),
     upvotes: 450,
     downvotes: 12,
     comments: 89,
@@ -23,10 +26,11 @@ export const posts: Post[] = [
     id: 'artifact-2',
     uid: 'system-operator',
     title: 'Chronos Weaver Armor',
-    content: "Exquisite plating that allows the wearer to perceive moments before they occur. Found within the temporal rifts of the Clockwork Spire. It is said the gears within never stop turning, even when the wearer is still.",
+    content: "Exquisite plating that allows the wearer to perceive moments before they occur. Found within the temporal rifts of the Clockwork Spire.",
     author: 'Sentinel X',
-    avatarUrl: findImage('user-avatar-2'),
-    imageUrl: findImage('post-image-2'),
+    avatarUrl: findImage('sentinel-x-avatar'),
+    imageUrl: findImage('artifact-armor'),
+    imageHint: findHint('artifact-armor'),
     upvotes: 320,
     downvotes: 5,
     comments: 42,
@@ -38,10 +42,11 @@ export const posts: Post[] = [
     id: 'artifact-3',
     uid: 'system-operator',
     title: 'Crystalline Mana Infuser',
-    content: "A powerful focus for arcane energy. It converts raw ambient magic into concentrated bolts of pure crystalline power. Operators often use these to stabilize unstable rift portals during Omega Raids.",
+    content: "A powerful focus for arcane energy. It converts raw ambient magic into concentrated bolts of pure crystalline power.",
     author: 'Rift Walker',
-    avatarUrl: findImage('user-avatar-3'),
-    imageUrl: findImage('post-image-3'),
+    avatarUrl: findImage('rift-walker-avatar'),
+    imageUrl: findImage('artifact-infuser'),
+    imageHint: findHint('artifact-infuser'),
     upvotes: 215,
     downvotes: 8,
     comments: 15,
@@ -88,7 +93,7 @@ export const challenges: Challenge[] = [
     id: 'challenge-3',
     title: 'Battle-Hardened',
     description: 'Deal a total of 5,000 cumulative damage to World Bosses.',
-    reward: '500 XP',
+    reward: '2500 GP',
     progress: 20,
     goal: 100,
   },
