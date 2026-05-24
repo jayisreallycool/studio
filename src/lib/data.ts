@@ -1,60 +1,10 @@
-
 import type { Post, Challenge } from '@/types';
 import { PlaceHolderImages } from './placeholder-images';
 
 const findImage = (id: string) => PlaceHolderImages.find(img => img.id === id)?.imageUrl || '';
 const findHint = (id: string) => PlaceHolderImages.find(img => img.id === id)?.imageHint || '';
 
-export const posts: Post[] = [
-  {
-    id: 'artifact-1',
-    uid: 'system-operator',
-    title: 'Void-Touched Reaper Scythe',
-    content: "A weapon forged in the depths of the Shadow Realm. It hums with a malevolent energy that drains the lifeforce of those it strikes.",
-    author: 'Operator Prime',
-    avatarUrl: findImage('operator-prime-avatar'),
-    imageUrl: findImage('artifact-scythe'),
-    imageHint: findHint('artifact-scythe'),
-    upvotes: 450,
-    downvotes: 12,
-    comments: 89,
-    tags: ['Legendary', 'Shadow', 'Melee'],
-    createdAt: '3 hours ago',
-    rarity: 'Legendary',
-  },
-  {
-    id: 'artifact-2',
-    uid: 'system-operator',
-    title: 'Chronos Weaver Armor',
-    content: "Exquisite plating that allows the wearer to perceive moments before they occur. Found within the temporal rifts of the Clockwork Spire.",
-    author: 'Sentinel X',
-    avatarUrl: findImage('sentinel-x-avatar'),
-    imageUrl: findImage('artifact-armor'),
-    imageHint: findHint('artifact-armor'),
-    upvotes: 320,
-    downvotes: 5,
-    comments: 42,
-    tags: ['Epic', 'Time', 'Plate'],
-    createdAt: '1 day ago',
-    rarity: 'Epic',
-  },
-  {
-    id: 'artifact-3',
-    uid: 'system-operator',
-    title: 'Crystalline Mana Infuser',
-    content: "A powerful focus for arcane energy. It converts raw ambient magic into concentrated bolts of pure crystalline power.",
-    author: 'Rift Walker',
-    avatarUrl: findImage('rift-walker-avatar'),
-    imageUrl: findImage('artifact-infuser'),
-    imageHint: findHint('artifact-infuser'),
-    upvotes: 215,
-    downvotes: 8,
-    comments: 15,
-    tags: ['Rare', 'Arcane', 'Artifact'],
-    createdAt: '2 days ago',
-    rarity: 'Rare',
-  },
-];
+export const posts: Post[] = [];
 
 export const dashboardStats = {
   totalEarnings: { value: 12500, change: 12 },

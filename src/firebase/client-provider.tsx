@@ -84,10 +84,10 @@ export function FirebaseClientProvider({
           });
         }
 
-        // Seed Posts
+        // Seed Posts (only if staticPosts has data)
         const postsCollectionRef = collection(firestore, 'posts');
         const postsSnapshot = await getDocs(postsCollectionRef);
-        if (postsSnapshot.empty) {
+        if (postsSnapshot.empty && staticPosts.length > 0) {
           staticPosts.forEach((post, index) => {
             const docRef = doc(postsCollectionRef);
             const postData = {
