@@ -32,7 +32,6 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
 
   const maxPlayerHp = 100 + (profile.level * 20);
 
-  // Generate a monster based on player level
   const spawnMonster = () => {
     const level = profile.level;
     const nameIndex = Math.floor(Math.random() * MONSTER_NAMES.length);
@@ -104,7 +103,7 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
     toast({ title: "ANOMALY PURGED", description: "You gained 50 XP and 100 GP!" });
     
     const userRef = doc(firestore, 'users', userUid);
-    await updateDoc(userRef, {
+    updateDoc(userRef, {
       karma: increment(50),
       level: increment(0.1),
       totalDamageDealt: increment(monster?.maxHp || 0)
@@ -120,7 +119,6 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
 
   return (
     <div className="max-w-6xl mx-auto grid lg:grid-cols-5 gap-10 pb-20">
-      {/* Player Stats Side */}
       <div className="lg:col-span-1 space-y-6">
         <Card className="comic-card bg-zinc-950 border-blue-600">
           <CardHeader className="bg-black border-b-4 border-black">
@@ -160,7 +158,6 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
         </Card>
       </div>
 
-      {/* Combat Stage */}
       <div className="lg:col-span-3 space-y-10">
         <div className="flex flex-col items-center justify-center space-y-8">
            <div className="text-center">
@@ -216,7 +213,6 @@ export function CombatArena({ profile, userUid }: CombatArenaProps) {
         </div>
       </div>
 
-      {/* Monster Data Side */}
       <div className="lg:col-span-1 space-y-6">
          <Card className="comic-card bg-zinc-950 border-red-600">
             <CardHeader className="bg-black border-b-4 border-black">

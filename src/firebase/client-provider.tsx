@@ -1,3 +1,4 @@
+
 'use client';
 
 import { FirebaseProvider } from './provider';
@@ -20,7 +21,6 @@ export function FirebaseClientProvider({
       if (!firestore) return;
 
       try {
-        // Seed World Events
         const eventsCollectionRef = collection(firestore, 'worldEvents');
         const eventsSnapshot = await getDocs(eventsCollectionRef);
         if (eventsSnapshot.empty) {
@@ -41,7 +41,6 @@ export function FirebaseClientProvider({
           await eventsBatch.commit();
         }
 
-        // Seed Challenges
         const challengesCollectionRef = collection(firestore, 'challenges');
         const challengesSnapshot = await getDocs(challengesCollectionRef);
         if (challengesSnapshot.empty) {
@@ -55,7 +54,6 @@ export function FirebaseClientProvider({
           await challengesBatch.commit();
         }
 
-        // AGGRESSIVE PURGE: Clear ALL old blogging/SEO data
         const postsCollectionRef = collection(firestore, 'posts');
         const postsSnapshot = await getDocs(postsCollectionRef);
         
@@ -77,10 +75,8 @@ export function FirebaseClientProvider({
         if (postsSnapshot.empty || legacyDocs.length > 0) {
           const postsBatch = writeBatch(firestore);
           
-          // Purge legacy data
           legacyDocs.forEach(d => postsBatch.delete(d.ref));
 
-          // Seed fantasy artifacts if empty or after purge
           if (postsSnapshot.empty || legacyDocs.length > 0) {
             staticPosts.forEach((post, index) => {
               const docRef = doc(postsCollectionRef);
@@ -91,6 +87,7 @@ export function FirebaseClientProvider({
                 upvotes: 100 + (index * 50),
                 downvotes: 10,
                 comments: 20 + (index * 5),
+                imageHint: index === 0 ? "dark scythe" : index === 1 ? "clockwork armor" : "magic crystal",
                 aiResult: {
                     relevanceScore: 0.7 + (Math.random() * 0.25),
                     reasoning: "Authentic artifact pattern detected in the Arena flux.",
@@ -106,7 +103,6 @@ export function FirebaseClientProvider({
 
       } catch (error) {
         // Silently catch permission errors during initial race conditions
-        // These are often handled by subsequent re-renders once auth is stable
       }
     };
 
