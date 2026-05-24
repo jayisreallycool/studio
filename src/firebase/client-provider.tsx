@@ -4,7 +4,7 @@ import { FirebaseProvider } from './provider';
 import { initializeFirebase } from './index';
 import { useEffect } from 'react';
 import { collection, doc, getDocs, writeBatch, Timestamp, serverTimestamp, query, limit } from 'firebase/firestore';
-import { posts as staticPosts, challenges as staticChallenges } from '@/lib/data';
+import { challenges as staticChallenges } from '@/lib/data';
 
 interface FirebaseClientProviderProps {
   children: React.ReactNode;
@@ -84,30 +84,7 @@ export function FirebaseClientProvider({
           });
         }
 
-        // Seed Posts (only if staticPosts has data)
-        const postsCollectionRef = collection(firestore, 'posts');
-        const postsSnapshot = await getDocs(postsCollectionRef);
-        if (postsSnapshot.empty && staticPosts.length > 0) {
-          staticPosts.forEach((post, index) => {
-            const docRef = doc(postsCollectionRef);
-            const postData = {
-              ...post,
-              createdAt: Timestamp.fromMillis(Date.now() - (index + 1) * 3 * 3600000),
-              rarity: index === 0 ? 'Legendary' : index === 1 ? 'Epic' : 'Rare',
-              upvotes: 100 + (index * 50),
-              downvotes: 10,
-              comments: 20 + (index * 5),
-              imageHint: index === 0 ? "dark scythe" : index === 1 ? "clockwork armor" : "magic crystal",
-              aiResult: {
-                  relevanceScore: 0.7 + (Math.random() * 0.25),
-                  reasoning: "Authentic artifact pattern detected in the Arena flux.",
-                  boostRecommendation: index === 0
-              }
-            };
-            delete (postData as any).id;
-            eventsBatch.set(docRef, postData);
-          });
-        }
+        // Post seeding logic has been removed to allow for a clean Arena state.
 
         await eventsBatch.commit();
       } catch (error) {
