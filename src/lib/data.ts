@@ -2,19 +2,16 @@ import type { Post, Challenge } from '@/types';
 import { PlaceHolderImages } from './placeholder-images';
 
 const findImage = (id: string) => PlaceHolderImages.find(img => img.id === id)?.imageUrl || '';
-const findImageHint = (id: string) => PlaceHolderImages.find(img => img.id === id)?.imageHint || '';
-
 
 export const posts: Post[] = [
   {
-    id: '1',
-    uid: 'user-1',
+    id: 'artifact-1',
+    uid: 'system-operator',
     title: 'Void-Touched Reaper Scythe',
     content: "A weapon forged in the depths of the Shadow Realm. It hums with a malevolent energy that drains the lifeforce of those it strikes. This artifact was recovered from the first Breach Event during the Great Incursion.",
-    author: 'Elena Voss',
+    author: 'Operator Prime',
     avatarUrl: findImage('user-avatar-1'),
     imageUrl: findImage('post-image-1'),
-    imageHint: findImageHint('post-image-1'),
     upvotes: 450,
     downvotes: 12,
     comments: 89,
@@ -23,14 +20,13 @@ export const posts: Post[] = [
     rarity: 'Legendary',
   },
   {
-    id: '2',
-    uid: 'user-2',
+    id: 'artifact-2',
+    uid: 'system-operator',
     title: 'Chronos Weaver Armor',
     content: "Exquisite plating that allows the wearer to perceive moments before they occur. Found within the temporal rifts of the Clockwork Spire. It is said the gears within never stop turning, even when the wearer is still.",
-    author: 'Marcus Chen',
+    author: 'Sentinel X',
     avatarUrl: findImage('user-avatar-2'),
     imageUrl: findImage('post-image-2'),
-    imageHint: findImageHint('post-image-2'),
     upvotes: 320,
     downvotes: 5,
     comments: 42,
@@ -39,14 +35,13 @@ export const posts: Post[] = [
     rarity: 'Epic',
   },
   {
-    id: '3',
-    uid: 'user-3',
+    id: 'artifact-3',
+    uid: 'system-operator',
     title: 'Crystalline Mana Infuser',
     content: "A powerful focus for arcane energy. It converts raw ambient magic into concentrated bolts of pure crystalline power. Operators often use these to stabilize unstable rift portals during Omega Raids.",
-    author: 'Sophie Dubois',
+    author: 'Rift Walker',
     avatarUrl: findImage('user-avatar-3'),
     imageUrl: findImage('post-image-3'),
-    imageHint: findImageHint('post-image-3'),
     upvotes: 215,
     downvotes: 8,
     comments: 15,
@@ -95,14 +90,6 @@ export const challenges: Challenge[] = [
     description: 'Deal a total of 5,000 cumulative damage to World Bosses.',
     reward: '500 XP',
     progress: 20,
-    goal: 100,
-  },
-  {
-    id: 'challenge-4',
-    title: 'Vault Seeker',
-    description: 'Claim your first rare loot drop from a successful boss raid.',
-    reward: 'Platinum Badge',
-    progress: 0,
     goal: 100,
   },
 ];

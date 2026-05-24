@@ -3,7 +3,7 @@
 import { FirebaseProvider } from './provider';
 import { initializeFirebase } from './index';
 import { useEffect } from 'react';
-import { collection, doc, getDocs, writeBatch, Timestamp, serverTimestamp, deleteDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, writeBatch, Timestamp, serverTimestamp, query, limit } from 'firebase/firestore';
 import { posts as staticPosts, challenges as staticChallenges } from '@/lib/data';
 
 interface FirebaseClientProviderProps {
@@ -55,15 +55,23 @@ export function FirebaseClientProvider({
           await challengesBatch.commit();
         }
 
-        // Seed Posts (Clearing old blogging posts if they exist is handled by the user manually or by document ID checking)
-        // Here we just ensure the feed is seeded with the correct lore if it's empty
+        // Corrective Seed for Posts: Clear old SEO blogging data if found
         const postsCollectionRef = collection(firestore, 'posts');
         const postsSnapshot = await getDocs(postsCollectionRef);
         
-        // If the current posts look like the old SEO ones, we force a re-seed (optional logic)
-        // For now, we'll just seed if empty.
-        if (postsSnapshot.empty) {
+        const hasOldData = postsSnapshot.docs.some(d => {
+            const t = d.data().title;
+            return t?.includes('SEO') || t?.includes('Passive Income') || t?.includes('Conversion');
+        });
+
+        if (postsSnapshot.empty || hasOldData) {
           const postsBatch = writeBatch(firestore);
+          
+          // If we found old data, purge it first
+          if (hasOldData) {
+              postsSnapshot.docs.forEach(d => postsBatch.delete(d.ref));
+          }
+
           staticPosts.forEach((post, index) => {
             const docRef = doc(postsCollectionRef);
             const postData = {
@@ -72,7 +80,12 @@ export function FirebaseClientProvider({
               rarity: index === 0 ? 'Legendary' : index === 1 ? 'Epic' : 'Rare',
               upvotes: 100 + (index * 50),
               downvotes: 10,
-              comments: 20 + (index * 5)
+              comments: 20 + (index * 5),
+              aiResult: {
+                  relevanceScore: 0.7 + (Math.random() * 0.25),
+                  reasoning: "Authentic artifact pattern detected in the Arena flux.",
+                  boostRecommendation: index === 0
+              }
             };
             delete (postData as any).id;
             postsBatch.set(docRef, postData);
