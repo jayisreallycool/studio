@@ -2,6 +2,7 @@
 import { Timestamp } from 'firebase/firestore';
 
 export type PostRarity = 'Common' | 'Rare' | 'Epic' | 'Legendary';
+export type HeroClass = 'Warrior' | 'Mage' | 'Rogue';
 
 export type PostAward = {
   type: 'Bronze' | 'Silver' | 'Gold';
@@ -46,6 +47,17 @@ export type WorldEvent = {
   participants: number;
 };
 
+export type Monster = {
+  id: string;
+  name: string;
+  hp: number;
+  maxHp: number;
+  atk: number;
+  level: number;
+  imageUrl: string;
+  description: string;
+};
+
 export type Challenge = {
   id: string;
   title: string;
@@ -60,8 +72,6 @@ export type DashboardStats = {
   totalViews: { value: number; change: number };
   totalClicks: { value: number; change: number };
   avgConversionRate: { value: number; change: number };
-  karma?: number;
-  level?: number;
 };
 
 export type UserProfile = {
@@ -74,4 +84,5 @@ export type UserProfile = {
   trophies?: string[];
   bossKills?: number;
   totalDamageDealt?: number;
+  heroClass?: HeroClass;
 };

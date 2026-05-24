@@ -38,22 +38,21 @@
         "karma": { "type": "number" },
         "inventory": { "type": "array", "items": { "type": "string" } },
         "bossKills": { "type": "number" },
-        "totalDamageDealt": { "type": "number" }
+        "totalDamageDealt": { "type": "number" },
+        "heroClass": { "type": "string", "enum": ["Warrior", "Mage", "Rogue"] }
       }
     },
-    "WorldEvent": {
-      "title": "World Event",
+    "Monster": {
+      "title": "Monster",
       "type": "object",
       "properties": {
-        "title": { "type": "string" },
-        "type": { "type": "string" },
-        "bossId": { "type": "string" },
-        "status": { "type": "string", "enum": ["upcoming", "active", "concluded"] },
-        "startTime": { "type": "object" },
-        "endTime": { "type": "object" },
-        "globalHealth": { "type": "number" },
-        "maxHealth": { "type": "number" },
-        "participants": { "type": "number" }
+        "name": { "type": "string" },
+        "hp": { "type": "number" },
+        "maxHp": { "type": "number" },
+        "atk": { "type": "number" },
+        "level": { "type": "number" },
+        "imageUrl": { "type": "string" },
+        "description": { "type": "string" }
       }
     }
   },
