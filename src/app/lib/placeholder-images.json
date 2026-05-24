@@ -28,19 +28,19 @@
     {
       "id": "artifact-scythe",
       "description": "Void-Touched Reaper Scythe",
-      "imageUrl": "https://picsum.photos/seed/13/800/600",
-      "imageHint": "fantasy scythe"
+      "imageUrl": "https://picsum.photos/seed/vtr-scythe/800/600",
+      "imageHint": "reaper scythe"
     },
     {
       "id": "artifact-armor",
       "description": "Chronos Weaver Armor",
-      "imageUrl": "https://picsum.photos/seed/42/800/600",
+      "imageUrl": "https://picsum.photos/seed/cw-armor/800/600",
       "imageHint": "clockwork armor"
     },
     {
       "id": "artifact-infuser",
       "description": "Crystalline Mana Infuser",
-      "imageUrl": "https://picsum.photos/seed/7/800/600",
+      "imageUrl": "https://picsum.photos/seed/cm-infuser/800/600",
       "imageHint": "magic crystal"
     }
   ]

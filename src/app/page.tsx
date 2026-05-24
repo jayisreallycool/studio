@@ -1,17 +1,27 @@
+
 'use client';
 import { PostCard } from '@/components/feed/post-card';
 import { BossRaidCard } from '@/components/events/boss-raid-card';
-import { useCollection } from '@/firebase';
-import { Post, WorldEvent } from '@/types';
-import { collection, query, orderBy, limit, where } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { useCollection, useUser, useDoc, useFirestore } from '@/firebase';
+import { Post, WorldEvent, UserProfile } from '@/types';
+import { collection, query, orderBy, limit, where, doc } from 'firebase/firestore';
 import { useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Trophy, Users, Zap, Swords, Flame, Skull } from 'lucide-react';
+import { Trophy, Users, Zap, Swords, Flame, Skull, ShieldCheck } from 'lucide-react';
+import { HeroSelection } from '@/components/dungeon/hero-selection';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function Home() {
+  const { user, loading: userLoading } = useUser();
   const firestore = useFirestore();
+
+  const profileRef = useMemo(() => {
+    if (!firestore || !user) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [firestore, user]);
+  const { data: profile, loading: profileLoading } = useDoc<UserProfile>(profileRef);
   
   const postsQuery = useMemo(() => {
     if (!firestore) return null;
@@ -29,18 +39,30 @@ export default function Home() {
   }, [firestore]);
   const { data: activeEvents, loading: eventsLoading } = useCollection<WorldEvent>(eventsQuery);
 
+  if (userLoading || profileLoading) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-100px)]">
+        <Skull className="w-12 h-12 animate-pulse text-primary" />
+      </div>
+    );
+  }
+
+  // GAME START: If user is logged in but has no class, force Hero Selection
+  if (user && !profile?.heroClass) {
+    return <HeroSelection userUid={user.uid} />;
+  }
+
   return (
     <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-12">
       <div className="lg:col-span-3 space-y-10">
-        <div className="flex items-center justify-between border-b-8 border-black pb-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between border-b-8 border-black pb-6 gap-4">
           <h1 className="text-6xl font-black italic uppercase tracking-tighter text-foreground flex items-center gap-3 comic-text-stroke">
             <Skull className="text-red-600 h-12 w-12 fill-red-600" /> The Arena
           </h1>
-          <div className="hidden md:flex gap-4">
-             <div className="text-right">
-                <p className="text-[10px] font-black uppercase text-zinc-500">Active Instances</p>
-                <p className="text-xl font-black italic uppercase tracking-tighter">842 Segments</p>
-             </div>
+          <div className="flex gap-4">
+            <Button asChild className="comic-button bg-primary text-black h-12 px-8 text-lg italic">
+              <Link href="/dungeon">ENTER DUNGEON</Link>
+            </Button>
           </div>
         </div>
 
@@ -74,6 +96,15 @@ export default function Home() {
       </div>
 
       <div className="lg:col-span-1 space-y-8">
+        {!user && (
+          <Card className="comic-card bg-primary border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <CardHeader>
+              <CardTitle className="text-sm font-black uppercase text-black tracking-widest italic">Neural Link Offline</CardTitle>
+              <CardDescription className="text-black/80 font-bold uppercase text-[10px]">Sign in to select your protocol and climb the ranks.</CardDescription>
+            </CardHeader>
+          </Card>
+        )}
+        
         <Card className="comic-card bg-zinc-900 sticky top-24">
           <CardHeader className="border-b-4 border-black bg-black">
             <CardTitle className="text-xs font-black uppercase tracking-[0.3em] flex items-center gap-2 text-yellow-500">
@@ -115,7 +146,7 @@ export default function Home() {
               <div className="border-l-4 border-primary pl-3">
                 <p className="text-[10px] font-bold text-zinc-400 leading-tight uppercase">
                   <span className="text-primary font-black mr-1">[LOOT]:</span> 
-                  Orb of Infinite Upvotes spotted in the Shadow Sector.
+                  Void Scythe patterns detected in the Shadow Sector.
                 </p>
               </div>
             </div>
