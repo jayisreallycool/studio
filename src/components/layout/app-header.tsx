@@ -1,4 +1,3 @@
-
 'use client';
 import { useEffect, useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -10,12 +9,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth, useUser, useFirestore } from "@/firebase";
 import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
+import { useToast } from "@/hooks/use-toast";
 
 
 export function AppHeader() {
   const { user, loading } = useUser();
   const auth = useAuth();
   const firestore = useFirestore();
+  const { toast } = useToast();
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
@@ -62,8 +63,16 @@ export function AppHeader() {
         
         await batch.commit();
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error.code === 'auth/popup-closed-by-user') {
+        return;
+      }
       console.error("Error during sign-in:", error);
+      toast({
+        title: "Connection Failed",
+        description: error.message || "Establishing neural link failed.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -108,7 +117,7 @@ export function AppHeader() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-9 w-9">
-                <AvatarImage src={user?.photoURL ?? "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtZW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzA1MjU4ODd8MA&ixlib=rb-4.1.0&q=80&w=1080"} alt={user?.displayName ?? "Affiliate User"} data-ai-hint="man portrait"/>
+                <AvatarImage src={user?.photoURL ?? "https://picsum.photos/seed/operator/200/200"} alt={user?.displayName ?? "Affiliate User"} data-ai-hint="operator portrait"/>
                 <AvatarFallback>{user?.displayName?.charAt(0) ?? 'A'}</AvatarFallback>
               </Avatar>
             </Button>

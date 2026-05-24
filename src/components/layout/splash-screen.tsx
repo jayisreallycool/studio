@@ -6,10 +6,12 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, writeBatch, serverTimestamp } from 'firebase/firestore';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 export function SplashScreen() {
   const auth = useAuth();
   const firestore = useFirestore();
+  const { toast } = useToast();
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
 
   const handleSignIn = async () => {
@@ -46,8 +48,17 @@ export function SplashScreen() {
 
         await batch.commit();
       }
-    } catch (error) {
+    } catch (error: any) {
+      if (error.code === 'auth/popup-closed-by-user') {
+        // Silently handle user cancellation
+        return;
+      }
       console.error("Link Failure:", error);
+      toast({
+        title: "Neural Link Failure",
+        description: error.message || "Failed to establish connection to the Arena.",
+        variant: "destructive"
+      });
     } finally {
       setIsConnecting(false);
     }
