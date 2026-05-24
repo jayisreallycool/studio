@@ -1,4 +1,3 @@
-
 'use client';
 import { PostCard } from '@/components/feed/post-card';
 import { BossRaidCard } from '@/components/events/boss-raid-card';
@@ -9,7 +8,7 @@ import { useFirestore } from '@/firebase';
 import { useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Trophy, Users, Zap, Swords, Flame } from 'lucide-react';
+import { Trophy, Users, Zap, Swords, Flame, Skull } from 'lucide-react';
 
 export default function Home() {
   const firestore = useFirestore();
@@ -33,9 +32,9 @@ export default function Home() {
   return (
     <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-12">
       <div className="lg:col-span-3 space-y-10">
-        <div className="flex items-center justify-between border-b-4 border-black pb-4">
-          <h1 className="text-5xl font-black italic uppercase tracking-tighter text-foreground flex items-center gap-3 comic-text-stroke">
-            <Flame className="text-red-600 h-10 w-10 fill-red-600" /> The Arena Feed
+        <div className="flex items-center justify-between border-b-8 border-black pb-4">
+          <h1 className="text-6xl font-black italic uppercase tracking-tighter text-foreground flex items-center gap-3 comic-text-stroke">
+            <Skull className="text-red-600 h-12 w-12 fill-red-600" /> The Arena
           </h1>
           <div className="hidden md:flex gap-4">
              <div className="text-right">
@@ -49,9 +48,9 @@ export default function Home() {
           <BossRaidCard key={event.id} event={event} />
         ))}
 
-        <div className="space-y-6">
+        <div className="space-y-8">
           {postsLoading && (
-            <div className="space-y-4">
+            <div className="space-y-6">
               <Skeleton className="w-full h-40 rounded-none border-4 border-black" />
               <Skeleton className="w-full h-40 rounded-none border-4 border-black" />
             </div>
@@ -63,10 +62,10 @@ export default function Home() {
           ) : null}
           {!postsLoading && (!posts || posts.length === 0) && (
              <Card className="comic-card border-dashed bg-black/40">
-                <CardHeader className="text-center">
-                    <CardTitle className="uppercase font-black text-primary italic text-3xl">Arena Empty</CardTitle>
-                    <CardDescription className="uppercase font-bold text-[10px] tracking-widest">
-                        The arena awaits its first artifact. Enter the forge to begin.
+                <CardHeader className="text-center py-20">
+                    <CardTitle className="uppercase font-black text-primary italic text-4xl">Arena Empty</CardTitle>
+                    <CardDescription className="uppercase font-bold text-[10px] tracking-widest mt-4">
+                        The protocol awaits its first artifact. Enter the forge to begin.
                     </CardDescription>
                 </CardHeader>
             </Card>
@@ -102,21 +101,21 @@ export default function Home() {
         <Card className="comic-card bg-zinc-900">
           <CardHeader className="border-b-4 border-black bg-black">
              <CardTitle className="text-xs font-black uppercase tracking-[0.3em] flex items-center gap-2 text-red-600">
-               <Swords className="h-4 w-4" /> Global Comms
+               <Swords className="h-4 w-4" /> Comms Hub
              </CardTitle>
           </CardHeader>
           <CardContent className="p-4 space-y-4">
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div className="border-l-4 border-red-600 pl-3">
-                <p className="text-[9px] font-bold text-zinc-400 leading-tight uppercase">
+                <p className="text-[10px] font-bold text-zinc-400 leading-tight uppercase">
                   <span className="text-red-600 font-black mr-1">[WAR]:</span> 
                   Demon King has breached the North Wall. All Operators mobilize!
                 </p>
               </div>
               <div className="border-l-4 border-primary pl-3">
-                <p className="text-[9px] font-bold text-zinc-400 leading-tight uppercase">
+                <p className="text-[10px] font-bold text-zinc-400 leading-tight uppercase">
                   <span className="text-primary font-black mr-1">[LOOT]:</span> 
-                  Golden Reddit Goblin spotted in the Shadow Sector.
+                  Orb of Infinite Upvotes spotted in the Shadow Sector.
                 </p>
               </div>
             </div>

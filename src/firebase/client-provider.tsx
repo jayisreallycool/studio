@@ -1,10 +1,9 @@
-
 'use client';
 
 import { FirebaseProvider } from './provider';
 import { initializeFirebase } from './index';
 import { useEffect } from 'react';
-import { collection, doc, getDocs, writeBatch, Timestamp } from 'firebase/firestore';
+import { collection, doc, getDocs, writeBatch, Timestamp, serverTimestamp } from 'firebase/firestore';
 import { posts as staticPosts, challenges as staticChallenges } from '@/lib/data';
 
 interface FirebaseClientProviderProps {
@@ -25,20 +24,19 @@ export function FirebaseClientProvider({
         const eventsCollectionRef = collection(firestore, 'worldEvents');
         const eventsSnapshot = await getDocs(eventsCollectionRef);
         if (eventsSnapshot.empty) {
-          console.log('Seeding world events...');
           const eventsBatch = writeBatch(firestore);
           const eventId = 'demon-king-raid';
           const eventDoc = doc(firestore, 'worldEvents', eventId);
           eventsBatch.set(eventDoc, {
-            title: 'THE DEMON KING',
-            type: 'Invasion',
+            title: 'DEMON KING',
+            type: 'Omega Invasion',
             bossId: 'demon-king',
             status: 'active',
             startTime: serverTimestamp(),
             endTime: Timestamp.fromMillis(Date.now() + 3600000 * 24),
             globalHealth: 1000000,
             maxHealth: 1000000,
-            participants: 142
+            participants: 1420
           });
           await eventsBatch.commit();
         }
@@ -67,7 +65,10 @@ export function FirebaseClientProvider({
             const postData = {
               ...post,
               createdAt: Timestamp.fromMillis(Date.now() - (index + 1) * 3 * 3600000),
-              rarity: index === 0 ? 'Legendary' : index === 1 ? 'Epic' : 'Rare'
+              rarity: index === 0 ? 'Legendary' : index === 1 ? 'Epic' : 'Rare',
+              upvotes: 100 + (index * 50),
+              downvotes: 10,
+              comments: 20 + (index * 5)
             };
             delete (postData as any).id;
             postsBatch.set(docRef, postData);
@@ -82,8 +83,6 @@ export function FirebaseClientProvider({
 
     seedDatabase();
   }, [firestore]);
-
-  const serverTimestamp = () => Timestamp.now();
 
   return (
     <FirebaseProvider
