@@ -46,8 +46,8 @@
     {
       "id": "hero-warrior",
       "description": "The Juggernaut Class",
-      "imageUrl": "https://picsum.photos/seed/heavy-warrior/600/800",
-      "imageHint": "armored knight"
+      "imageUrl": "https://picsum.photos/seed/juggernaut-behemoth/600/800",
+      "imageHint": "stone titan"
     },
     {
       "id": "hero-mage",
